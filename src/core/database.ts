@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { Client } from 'pg';
 import { TaskStatuses } from '../enums';
 
@@ -34,8 +33,7 @@ const createTableQuery = `
 const client = new Client({
   connectionString: POSTGRESQL_LINK,
   ssl: {
-    rejectUnauthorized: true,
-    ca: fs.readFileSync('./ca.pem').toString(),
+    rejectUnauthorized: false,
   },
 });
 
