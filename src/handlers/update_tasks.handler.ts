@@ -1,0 +1,63 @@
+import createDebug from 'debug';
+import { TelegramError, type Context } from 'telegraf';
+import type { ExtraEditMessageText } from 'telegraf/typings/telegram-types';
+
+import { formatDate, generateTaskList, getTasksForChat } from '../utils';
+
+const debug = createDebug('bot:handle_update_tasks');
+const editMessageParams: ExtraEditMessageText = {
+  parse_mode: 'HTML',
+  link_preview_options: { is_disabled: true },
+  reply_markup: {
+    inline_keyboard: [
+      [
+        {
+          text: 'Оновити',
+          callback_data: 'update_tasks',
+        },
+      ],
+    ],
+  },
+};
+
+export const handleUpdateTasks = () => async (ctx: Context) => {
+  debug('Triggered "handleUpdateTasks" handler');
+
+  const chatId = ctx.chat!.id;
+  const thread = (ctx.callbackQuery as any).message.message_thread_id || null;
+  const tasks = await getTasksForChat(chatId, thread);
+
+  if (tasks.length === 0) {
+    debug('No tasks found');
+    try {
+      await ctx.editMessageText(
+        'Немає тасок! Створіть нову командою /new_task\n' +
+          `<i>Оновлено: ${formatDate(new Date(), true)}</i>`,
+        editMessageParams,
+      );
+    } catch (e: unknown) {
+      if (!(e instanceof TelegramError) || e.code !== 400) {
+        throw e;
+      }
+    }
+    return;
+  }
+
+  if (tasks.length === 1) {
+    debug(`Got task list with ${tasks.length} item`);
+  } else {
+    debug(`Got task list with ${tasks.length} items`);
+  }
+
+  try {
+    await ctx.editMessageText(
+      generateTaskList(tasks) +
+        `\n<i>Оновлено: ${formatDate(new Date(), true)}</i>`,
+      editMessageParams,
+    );
+  } catch (e: unknown) {
+    if (!(e instanceof TelegramError) || e.code !== 400) {
+      throw e;
+    }
+  }
+};
