@@ -4,6 +4,7 @@ import {
   deleteAllTasks,
   deleteTask,
   getTasks,
+  helpCommandReply,
   newTask,
   setTaskDeadline,
   setTaskPostDeadline,
@@ -30,6 +31,8 @@ const ENVIRONMENT = process.env.NODE_ENV || '';
 const bot = new Telegraf(BOT_TOKEN);
 
 bot.command('start', startCommandReply());
+bot.command('help', helpCommandReply());
+
 bot.command('new_task', newTask());
 bot.command('tasks', getTasks());
 bot.command('delete_task', deleteTask());

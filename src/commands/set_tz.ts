@@ -5,6 +5,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_tz');
 const setTaskTzRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
+const urlRegex = /^(?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)$/;
 
 export const setTaskTz = () => async (ctx: Context) => {
   debug('Triggered "set_tz" command');
@@ -20,7 +21,15 @@ export const setTaskTz = () => async (ctx: Context) => {
   }
 
   const taskNumber = parseInt(match[2], 10);
-  const tz = match[3];
+  const parsedTz = match[3].trim();
+  const tzMatch = parsedTz.match(urlRegex);
+  if (!tzMatch || tzMatch[0] !== parsedTz) {
+    debug('TZ is not url.');
+    ctx.reply('ТЗ має бути у вигляді посилання.');
+    return;
+  }
+
+  const tz = tzMatch[0];
 
   const selectedTask = await getSelectedTask(ctx, taskNumber);
   if (!selectedTask) {

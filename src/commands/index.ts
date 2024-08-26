@@ -1,5 +1,6 @@
 export * from './delete_all_tasks';
 export * from './delete_task';
+export * from './help';
 export * from './new_task';
 export * from './set_deadline';
 export * from './set_post_deadline';

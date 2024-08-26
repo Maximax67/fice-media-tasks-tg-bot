@@ -6,6 +6,7 @@ import { Markup, type Context } from 'telegraf';
 const debug = createDebug('bot:new_task');
 const newTaskRegex =
   /^(\/\S+)\s+((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*)(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?$/;
+const urlRegex = /^(?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)$/;
 
 interface ReturnQueryWithId {
   id: number;
@@ -27,8 +28,20 @@ export const newTask = () => async (ctx: Context) => {
     return;
   }
 
+  const parsedTz = match[3]?.trim() || null;
+  let tz: string | null = null;
+  if (parsedTz) {
+    const tzMatch = parsedTz.match(urlRegex);
+    if (!tzMatch || tzMatch[0] !== parsedTz) {
+      debug('TZ is not url.');
+      ctx.reply('ТЗ має бути у вигляді посилання.');
+      return;
+    }
+
+    tz = tzMatch[0];
+  }
+
   const title = match[2].trim();
-  const tz = match[3]?.trim() || null;
   const deadline = match[4]?.trim() || null;
   const postDeadline = match[5]?.trim() || null;
   const assignedPerson = match[6]?.trim() || null;
