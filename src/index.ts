@@ -3,9 +3,11 @@ import { Telegraf } from 'telegraf';
 import {
   deleteAllTasks,
   deleteTask,
+  deleteTaskComment,
   getTasks,
   helpCommandReply,
   newTask,
+  setTaskComment,
   setTaskDeadline,
   setTaskPostDeadline,
   setTaskResponsible,
@@ -37,7 +39,9 @@ bot.command('new_task', newTask());
 bot.command('tasks', getTasks());
 bot.command('delete_task', deleteTask());
 bot.command('delete_all_tasks', deleteAllTasks());
+bot.command('delete_comment', deleteTaskComment());
 
+bot.command('set_comment', setTaskComment());
 bot.command('set_deadline', setTaskDeadline());
 bot.command('set_post_deadline', setTaskPostDeadline());
 bot.command('set_responsible', setTaskResponsible());

@@ -26,25 +26,33 @@ function formatTask(task: Task, index: number) {
   const urlRegex = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
   const usernameRegex = /^@\w+$/;
 
-  const escapedTitle = escapeHTML(task.title);
-  const escapedDeadline = task.deadline
-    ? escapeHTML(task.deadline)
-    : 'відсутній';
-  const escapedDeadlinePost = task.post_deadline
-    ? escapeHTML(task.post_deadline)
+  const {
+    title,
+    deadline,
+    post_deadline,
+    tz,
+    url,
+    assigned_person,
+    status,
+    comment,
+  } = task;
+
+  const escapedTitle = escapeHTML(title);
+  const escapedDeadline = deadline ? escapeHTML(deadline) : 'відсутній';
+  const escapedDeadlinePost = post_deadline
+    ? escapeHTML(post_deadline)
     : 'відсутній';
 
   let tzFormatted: string;
-  if (task.tz) {
-    tzFormatted = urlRegex.test(task.tz)
-      ? ` <a href="${task.tz}">[ТЗ]</a>`
-      : `\nТЗ: ${escapeHTML(task.tz)}`;
+  if (tz) {
+    tzFormatted = urlRegex.test(tz)
+      ? ` <a href="${tz}">[ТЗ]</a>`
+      : `\nТЗ: ${escapeHTML(tz)}`;
   } else {
     tzFormatted = '';
   }
 
   let assignedPersonFormatted: string;
-  const assigned_person = task.assigned_person;
   if (assigned_person) {
     assignedPersonFormatted = usernameRegex.test(assigned_person)
       ? `<a href="https://t.me/${assigned_person.substring(1)}">${assigned_person}</a>`
@@ -53,15 +61,18 @@ function formatTask(task: Task, index: number) {
     assignedPersonFormatted = 'не назначений';
   }
 
-  const title = task.url
-    ? `<a href="${task.url}">${escapedTitle}</a>${tzFormatted}`
+  const titleFormatted = url
+    ? `<a href="${url}">${escapedTitle}</a>${tzFormatted}`
     : escapedTitle + tzFormatted;
 
+  const commentFormatted = comment ? `\nКоментар: ${comment}` : ``;
+
   return (
-    `${index + 1}) ${StatusIcons[task.status]} ${title}\n` +
+    `${index + 1}) ${StatusIcons[status]} ${titleFormatted}\n` +
     `Дедлайн: ${escapedDeadline}\n` +
     `Дедлайн посту: ${escapedDeadlinePost}\n` +
-    `Відповідальний: ${assignedPersonFormatted}`
+    `Відповідальний: ${assignedPersonFormatted}` +
+    commentFormatted
   );
 }
 

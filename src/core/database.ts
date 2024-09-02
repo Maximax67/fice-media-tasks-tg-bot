@@ -24,7 +24,8 @@ const createTableQuery = `
     deadline TEXT,
     post_deadline TEXT,
     assigned_person TEXT,
-    status task_statuses DEFAULT '${TaskStatuses.NEW}'
+    status task_statuses DEFAULT '${TaskStatuses.NEW}',
+    comment TEXT
   );
 
   CREATE INDEX IF NOT EXISTS idx_tasks_chat_and_thread ON tasks (chat_id, thread);
