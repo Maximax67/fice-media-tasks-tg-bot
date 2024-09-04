@@ -1,10 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask } from '../utils';
+import { getSelectedTaskComment } from '../utils';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:delete_comment');
-const deleteTaskRegex = /^(\/\S+)\s+(\d+)$/;
+const deleteTaskRegex = /^(\/\S+)\s+(\d+)\s+(\d+)$/;
 
 export const deleteTaskComment = () => async (ctx: Context) => {
   debug('Triggered "delete_comment" command');
@@ -21,28 +22,29 @@ export const deleteTaskComment = () => async (ctx: Context) => {
   }
 
   const taskNumber = parseInt(match[2], 10);
-  const selectedTask = await getSelectedTask(ctx, taskNumber);
-  if (!selectedTask) {
-    return;
-  }
-
-  if (!selectedTask.comment) {
-    debug('Task does not have comment');
-    ctx.reply('Таска не має встановленого коментаря.');
-    return;
-  }
-
-  const taskId = selectedTask.id;
-  const result = await client.query(
-    'UPDATE tasks SET comment = NULL WHERE id = $1',
-    [taskId],
+  const commentNumber = parseInt(match[3], 10);
+  const selectedComment = await getSelectedTaskComment(
+    ctx,
+    taskNumber,
+    commentNumber,
   );
-  if (!result.rowCount) {
-    debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+
+  if (!selectedComment) {
     return;
   }
 
-  debug(`Task deleted with id: ${taskId}`);
-  ctx.reply(`Коментар видалений до таски: ${selectedTask.title}`);
+  const commentId = selectedComment.id;
+  const result = await client.query(
+    'DELETE FROM comments WHERE id = $1',
+    [commentId],
+  );
+
+  if (!result.rowCount) {
+    debug('Comment not found');
+    ctx.reply('Коментар не знайдено. Можливо він вже видалений');
+    return;
+  }
+
+  debug(`Comment deleted with id: ${commentId}`);
+  ctx.reply(`Видалено коментар: ${selectedComment.comment_text}`);
 };

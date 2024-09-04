@@ -24,11 +24,19 @@ const createTableQuery = `
     deadline TEXT,
     post_deadline TEXT,
     assigned_person TEXT,
-    status task_statuses DEFAULT '${TaskStatuses.NEW}',
-    comment TEXT
+    status task_statuses DEFAULT '${TaskStatuses.NEW}'
   );
 
   CREATE INDEX IF NOT EXISTS idx_tasks_chat_and_thread ON tasks (chat_id, thread);
+
+  CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL PRIMARY KEY,
+    task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    comment_text TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_comments_task_id ON comments (task_id);
 `;
 
 const client = new Client({

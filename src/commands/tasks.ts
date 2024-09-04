@@ -1,5 +1,5 @@
 import createDebug from 'debug';
-import { generateTaskList, getTasksForChat } from '../utils';
+import { generateTaskList, getTasksAndCommentsForChat } from '../utils';
 import { Markup, type Context } from 'telegraf';
 
 const debug = createDebug('bot:tasks');
@@ -10,7 +10,7 @@ export const getTasks = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  const tasks = await getTasksForChat(chatId, thread);
+  const tasks = await getTasksAndCommentsForChat(chatId, thread);
   if (tasks.length === 0) {
     debug('No tasks found');
     ctx.reply(

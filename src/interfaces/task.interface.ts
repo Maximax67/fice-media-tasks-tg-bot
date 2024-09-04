@@ -1,4 +1,5 @@
 import type { TaskStatuses } from '../enums';
+import type { Comment } from './comment.interface';
 
 export interface Task {
   id: number;
@@ -11,5 +12,5 @@ export interface Task {
   post_deadline: string | null;
   assigned_person: string | null;
   status: TaskStatuses;
-  comment: string | null;
+  comments?: Comment[];
 }

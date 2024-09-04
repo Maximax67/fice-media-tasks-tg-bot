@@ -34,7 +34,7 @@ function formatTask(task: Task, index: number) {
     url,
     assigned_person,
     status,
-    comment,
+    comments,
   } = task;
 
   const escapedTitle = escapeHTML(title);
@@ -65,15 +65,30 @@ function formatTask(task: Task, index: number) {
     ? `<a href="${url}">${escapedTitle}</a>${tzFormatted}`
     : escapedTitle + tzFormatted;
 
-  const commentFormatted = comment ? `\nКоментар: ${comment}` : ``;
-
-  return (
-    `${index + 1}) ${StatusIcons[status]} ${titleFormatted}\n` +
+  let formattedTask = `${index + 1}) ${StatusIcons[status]} ${titleFormatted}\n` +
     `Дедлайн: ${escapedDeadline}\n` +
     `Дедлайн посту: ${escapedDeadlinePost}\n` +
-    `Відповідальний: ${assignedPersonFormatted}` +
-    commentFormatted
-  );
+    `Відповідальний: ${assignedPersonFormatted}`;
+
+  if (comments && comments.length > 0) {
+    const formattedComments = comments
+      .map((comment, i) => {
+        const formattedDate = new Date(comment.created_at)
+          .toLocaleString('uk-UA', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+          .replace(',', ''); // Formats the date to 'dd.mm hh:mm'
+        return `${i + 1}. ${escapeHTML(comment.comment_text)} (${formattedDate})`;
+      })
+      .join('\n');
+
+    formattedTask += `\nКоментарі:\n${formattedComments}`;
+  }
+
+  return formattedTask;
 }
 
 export function generateTaskList(tasks: Task[]) {

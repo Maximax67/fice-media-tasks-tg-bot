@@ -2,7 +2,11 @@ import createDebug from 'debug';
 import { TelegramError, type Context } from 'telegraf';
 import type { ExtraEditMessageText } from 'telegraf/typings/telegram-types';
 
-import { formatDate, generateTaskList, getTasksForChat } from '../utils';
+import {
+  formatDate,
+  generateTaskList,
+  getTasksAndCommentsForChat,
+} from '../utils';
 
 const debug = createDebug('bot:handle_update_tasks');
 const editMessageParams: ExtraEditMessageText = {
@@ -25,7 +29,7 @@ export const handleUpdateTasks = () => async (ctx: Context) => {
 
   const chatId = ctx.chat!.id;
   const thread = (ctx.callbackQuery as any).message.message_thread_id || null;
-  const tasks = await getTasksForChat(chatId, thread);
+  const tasks = await getTasksAndCommentsForChat(chatId, thread);
 
   if (tasks.length === 0) {
     debug('No tasks found');
