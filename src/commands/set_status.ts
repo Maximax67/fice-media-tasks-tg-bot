@@ -23,6 +23,7 @@ export const setTaskStatus = () => async (ctx: Context) => {
   const taskNumber = parseInt(match[2], 10);
   const selectedTask = await getSelectedTask(ctx, taskNumber);
   if (!selectedTask) {
+    debug('Selected task not exists');
     return;
   }
 

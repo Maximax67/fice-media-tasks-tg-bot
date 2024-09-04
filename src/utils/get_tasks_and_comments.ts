@@ -1,5 +1,5 @@
 import { client } from '../core';
-import type { Task, Comment } from '../interfaces';
+import type { Task } from '../interfaces';
 
 export async function getTasksAndCommentsForChat(
   chatId: number,

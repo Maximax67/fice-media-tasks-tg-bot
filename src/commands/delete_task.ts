@@ -23,19 +23,23 @@ export const deleteTask = () => async (ctx: Context) => {
   const taskNumber = parseInt(match[2], 10);
   const selectedTask = await getSelectedTask(ctx, taskNumber);
   if (!selectedTask) {
+    debug('Selected task not exists');
     return;
   }
 
   const taskId = selectedTask.id;
-  const result = await client.query('DELETE FROM tasks WHERE id = $1', [
-    taskId,
-  ]);
+  const result = await client.query(
+    'DELETE FROM tasks WHERE id = $1 RETURNING title',
+    [taskId],
+  );
   if (!result.rowCount) {
     debug('Task not found');
     ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
+  const taskTitle = result.rows[0].title;
+
   debug(`Task deleted with id: ${taskId}`);
-  ctx.reply('Таска видалена');
+  ctx.reply(`Таска видалена: ${taskTitle}`);
 };

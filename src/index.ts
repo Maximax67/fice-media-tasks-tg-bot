@@ -8,6 +8,7 @@ import {
   deleteTaskComment,
   getTasks,
   helpCommandReply,
+  limitsCommandReply,
   newTask,
   setTaskDeadline,
   setTaskPostDeadline,
@@ -35,6 +36,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 bot.command('start', startCommandReply());
 bot.command('help', helpCommandReply());
+bot.command('limits', limitsCommandReply());
 
 bot.command('new_task', newTask());
 bot.command('tasks', getTasks());

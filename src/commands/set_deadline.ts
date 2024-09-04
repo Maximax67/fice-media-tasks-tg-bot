@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import { getSelectedTask } from '../utils';
+import { DEADLINE_LENGTH_LIMIT } from '../config';
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_deadline');
@@ -19,11 +20,19 @@ export const setTaskDeadline = () => async (ctx: Context) => {
     return;
   }
 
-  const taskNumber = parseInt(match[2], 10);
   const deadline = match[3];
+  if (deadline.length > DEADLINE_LENGTH_LIMIT) {
+    debug('Deadline too long');
+    ctx.reply(
+      `Дедлайн таски дуже довгий (${deadline.length}). Обмеження за кількістю символів: ${DEADLINE_LENGTH_LIMIT}.`,
+    );
+    return;
+  }
 
+  const taskNumber = parseInt(match[2], 10);
   const selectedTask = await getSelectedTask(ctx, taskNumber);
   if (!selectedTask) {
+    debug('Selected task not exists');
     return;
   }
 

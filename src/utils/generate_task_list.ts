@@ -1,31 +1,24 @@
 import { StatusIcons } from './status_icons';
 import { TaskStatuses } from '../enums';
+import { URL_REGEX } from '../config';
 import { StatusNames } from './status_names';
+import { formatDateTime } from './format_datetime';
 import type { Task } from '../interfaces';
 
-function escapeHTML(str: string) {
-  return str.replace(/[&<>"']/g, function (match) {
-    switch (match) {
-      case '&':
-        return '&amp;';
-      case '<':
-        return '&lt;';
-      case '>':
-        return '&gt;';
-      case '"':
-        return '&quot;';
-      case "'":
-        return '&#39;';
-      default:
-        return match;
-    }
-  });
+const usernameRegex = /^@\w+$/;
+const escapeChars: { [key: string]: string } = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+function escapeHTML(str: string): string {
+  return str.replace(/[&<>"']/g, (match) => escapeChars[match]);
 }
 
-function formatTask(task: Task, index: number) {
-  const urlRegex = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
-  const usernameRegex = /^@\w+$/;
-
+function formatTask(task: Task, index: number): string {
   const {
     title,
     deadline,
@@ -45,7 +38,7 @@ function formatTask(task: Task, index: number) {
 
   let tzFormatted: string;
   if (tz) {
-    tzFormatted = urlRegex.test(tz)
+    tzFormatted = URL_REGEX.test(tz)
       ? ` <a href="${tz}">[ТЗ]</a>`
       : `\nТЗ: ${escapeHTML(tz)}`;
   } else {
@@ -65,7 +58,8 @@ function formatTask(task: Task, index: number) {
     ? `<a href="${url}">${escapedTitle}</a>${tzFormatted}`
     : escapedTitle + tzFormatted;
 
-  let formattedTask = `${index + 1}) ${StatusIcons[status]} ${titleFormatted}\n` +
+  let formattedTask =
+    `${index + 1}) ${StatusIcons[status]} ${titleFormatted}\n` +
     `Дедлайн: ${escapedDeadline}\n` +
     `Дедлайн посту: ${escapedDeadlinePost}\n` +
     `Відповідальний: ${assignedPersonFormatted}`;
@@ -73,15 +67,13 @@ function formatTask(task: Task, index: number) {
   if (comments && comments.length > 0) {
     const formattedComments = comments
       .map((comment, i) => {
-        const formattedDate = new Date(comment.created_at)
-          .toLocaleString('uk-UA', {
-            day: '2-digit',
-            month: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-          .replace(',', ''); // Formats the date to 'dd.mm hh:mm'
-        return `${i + 1}. ${escapeHTML(comment.comment_text)} (${formattedDate})`;
+        const formattedDate = formatDateTime(new Date(comment.created_at));
+        const commentText = escapeHTML(comment.comment_text);
+        const formattedCommentText = URL_REGEX.test(commentText)
+          ? `<a href="${commentText}">*тиць*</a>`
+          : commentText;
+
+        return `${i + 1}. ${formattedCommentText} (${formattedDate})`;
       })
       .join('\n');
 
@@ -91,7 +83,7 @@ function formatTask(task: Task, index: number) {
   return formattedTask;
 }
 
-export function generateTaskList(tasks: Task[]) {
+export function generateTaskList(tasks: Task[]): string {
   return (
     '<b>===== Поточні таски =====</b>\n\n' +
     tasks.map(formatTask).join('\n\n') +

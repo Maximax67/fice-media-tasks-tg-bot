@@ -3,7 +3,7 @@ import { TelegramError, type Context } from 'telegraf';
 import type { ExtraEditMessageText } from 'telegraf/typings/telegram-types';
 
 import {
-  formatDate,
+  formatDateTime,
   generateTaskList,
   getTasksAndCommentsForChat,
 } from '../utils';
@@ -36,7 +36,7 @@ export const handleUpdateTasks = () => async (ctx: Context) => {
     try {
       await ctx.editMessageText(
         'Немає тасок! Створіть нову командою /new_task\n' +
-          `<i>Оновлено: ${formatDate(new Date(), true)}</i>`,
+          `<i>Оновлено: ${formatDateTime(new Date(), true)}</i>`,
         editMessageParams,
       );
     } catch (e: unknown) {
@@ -56,7 +56,7 @@ export const handleUpdateTasks = () => async (ctx: Context) => {
   try {
     await ctx.editMessageText(
       generateTaskList(tasks) +
-        `\n<i>Оновлено: ${formatDate(new Date(), true)}</i>`,
+        `\n<i>Оновлено: ${formatDateTime(new Date(), true)}</i>`,
       editMessageParams,
     );
   } catch (e: unknown) {

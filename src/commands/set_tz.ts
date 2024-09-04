@@ -1,11 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import { getSelectedTask } from '../utils';
+import { TZ_ALWAYS_URL, URL_REGEX } from '../config';
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_tz');
 const setTaskTzRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
-const urlRegex = /^(?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)$/;
 
 export const setTaskTz = () => async (ctx: Context) => {
   debug('Triggered "set_tz" command');
@@ -20,19 +20,17 @@ export const setTaskTz = () => async (ctx: Context) => {
     return;
   }
 
-  const taskNumber = parseInt(match[2], 10);
-  const parsedTz = match[3].trim();
-  const tzMatch = parsedTz.match(urlRegex);
-  if (!tzMatch || tzMatch[0] !== parsedTz) {
+  const tz = match[3].trim();
+  if (TZ_ALWAYS_URL && !URL_REGEX.test(tz)) {
     debug('TZ is not url.');
     ctx.reply('ТЗ має бути у вигляді посилання.');
     return;
   }
 
-  const tz = tzMatch[0];
-
+  const taskNumber = parseInt(match[2], 10);
   const selectedTask = await getSelectedTask(ctx, taskNumber);
   if (!selectedTask) {
+    debug('Selected task not exists');
     return;
   }
 

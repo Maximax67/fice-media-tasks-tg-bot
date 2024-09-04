@@ -2,6 +2,7 @@ import createDebug from 'debug';
 import { client } from '../core';
 import { getSelectedTask } from '../utils';
 import type { Context } from 'telegraf';
+import { RESPONSIBLE_LENGTH_LIMIT } from '../config';
 
 const debug = createDebug('bot:set_responsible');
 const setTaskResponsibleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
@@ -19,16 +20,24 @@ export const setTaskResponsible = () => async (ctx: Context) => {
     return;
   }
 
-  const taskNumber = parseInt(match[2], 10);
   const responsible = match[3];
+  if (responsible.length > RESPONSIBLE_LENGTH_LIMIT) {
+    debug('Responsible too long');
+    ctx.reply(
+      `Виконавець таски дуже довгий (${responsible.length}). Обмеження за кількістю символів: ${RESPONSIBLE_LENGTH_LIMIT}.`,
+    );
+    return;
+  }
 
+  const taskNumber = parseInt(match[2], 10);
   const selectedTask = await getSelectedTask(ctx, taskNumber);
   if (!selectedTask) {
+    debug('Selected task not exists');
     return;
   }
 
   if (responsible === selectedTask.assigned_person) {
-    debug('Responsible tag not changed');
+    debug('Responsible not changed');
     ctx.reply('Відповідальний не змінився');
     return;
   }

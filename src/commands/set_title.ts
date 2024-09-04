@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import { getSelectedTask } from '../utils';
+import { TITLE_LENGTH_LIMIT } from '../config';
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_title');
@@ -19,11 +20,19 @@ export const setTaskTitle = () => async (ctx: Context) => {
     return;
   }
 
-  const taskNumber = parseInt(match[2], 10);
   const newTitle = match[3];
+  if (newTitle.length > TITLE_LENGTH_LIMIT) {
+    debug('Title too long');
+    ctx.reply(
+      `Назва таски дуже довга (${newTitle.length}). Обмеження за кількістю символів: ${TITLE_LENGTH_LIMIT}.`,
+    );
+    return;
+  }
 
+  const taskNumber = parseInt(match[2], 10);
   const selectedTask = await getSelectedTask(ctx, taskNumber);
   if (!selectedTask) {
+    debug('Selected task not exists');
     return;
   }
 

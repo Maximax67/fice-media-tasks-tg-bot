@@ -16,7 +16,7 @@ export const deleteTaskComment = () => async (ctx: Context) => {
   if (!match) {
     debug('Invalid task delete comment command format');
     ctx.reply(
-      'Неправильний формат команди видалення коментарію!\n/delete_comment номер_таски',
+      'Неправильний формат команди видалення коментарію!\n/delete_comment номер_таски номер_коментаря',
     );
     return;
   }
@@ -30,14 +30,14 @@ export const deleteTaskComment = () => async (ctx: Context) => {
   );
 
   if (!selectedComment) {
+    debug('Selected comment not exists');
     return;
   }
 
   const commentId = selectedComment.id;
-  const result = await client.query(
-    'DELETE FROM comments WHERE id = $1',
-    [commentId],
-  );
+  const result = await client.query('DELETE FROM comments WHERE id = $1', [
+    commentId,
+  ]);
 
   if (!result.rowCount) {
     debug('Comment not found');
