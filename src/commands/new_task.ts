@@ -99,12 +99,12 @@ export const newTask = () => async (ctx: Context) => {
   if (tz) {
     if (TZ_ALWAYS_URL && !URL_REGEX.test(tz)) {
       debug('TZ is not url');
-      validationErrors.push('ТЗ має бути у вигляді посилання.\n');
+      validationErrors.push('ТЗ має бути у вигляді посилання.');
     }
     if (tz.length > TZ_LENGTH_LIMIT) {
       debug('TZ too long');
       validationErrors.push(
-        `ТЗ дуже довге (${tz.length} > ${TZ_LENGTH_LIMIT}).\n`,
+        `ТЗ дуже довге (${tz.length} > ${TZ_LENGTH_LIMIT}).`,
       );
     }
   }
