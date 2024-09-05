@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getTasksForChat } from '../utils';
+import { getTasksForChat, urlReplacer } from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -60,6 +60,7 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
 
   debug(`Deleted ${result.rowCount} comment(s) for task id: ${taskId}`);
   ctx.reply(
-    `Видалено коментарі до таски (${result.rowCount}): ${selectedTask.title}`,
+    `Видалено коментарі (${result.rowCount}) до таски: ${urlReplacer(selectedTask.title)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 };

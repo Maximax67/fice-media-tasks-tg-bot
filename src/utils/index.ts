@@ -1,3 +1,5 @@
+export * from './escape_html';
+export * from './format_assigned_person';
 export * from './format_datetime';
 export * from './generate_task_list';
 export * from './get_selected_task_comment';
@@ -9,3 +11,5 @@ export * from './limits_message';
 export * from './start_message';
 export * from './status_icons';
 export * from './status_names';
+export * from './task_title_replacer';
+export * from './url_replacer';

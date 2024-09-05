@@ -1,18 +1,13 @@
 import { StatusIcons } from './status_icons';
 import { TaskStatuses } from '../enums';
-import { URL_REGEX } from '../config';
+import { URL_REGEX, USERNAME_REGEX } from '../constants';
 import { StatusNames } from './status_names';
 import { formatDateTime } from './format_datetime';
+import { urlReplacer } from './url_replacer';
+import { escapeHtml } from './escape_html';
 import type { Task } from '../interfaces';
-
-const usernameRegex = /^@\w+$/;
-const escapeChars: { [key: string]: string } = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-};
+import { taskTitleReplacer } from './task_title_replacer';
+import { formatAssignedPerson } from './format_assigned_person';
 
 const taskListLegend =
   '<b>Легенда</b>:\n' +
@@ -28,10 +23,6 @@ const taskListLegend =
   '• <a href="https://www.notion.so/invite/bb7b44687447c405a49174ea0c752d71c63e2d19">Notion відділу</a>\n' +
   '• <a href="https://telegra.ph/Reyestr-standartnih-pomilok-09-04">Реєстр стандартних помилок</a>';
 
-function escapeHTML(str: string): string {
-  return str.replace(/[&<>"']/g, (match) => escapeChars[match]);
-}
-
 function formatTask(task: Task, index: number): string {
   const {
     title,
@@ -44,29 +35,24 @@ function formatTask(task: Task, index: number): string {
     comments,
   } = task;
 
-  const escapedTitle = escapeHTML(title);
-  const escapedDeadline = deadline ? escapeHTML(deadline) : 'відсутній';
+  const escapedTitle = taskTitleReplacer(title, true);
+  const escapedDeadline = deadline ? urlReplacer(deadline) : 'відсутній';
   const escapedDeadlinePost = post_deadline
-    ? escapeHTML(post_deadline)
+    ? urlReplacer(post_deadline)
     : 'відсутній';
 
   let tzFormatted: string;
   if (tz) {
     tzFormatted = URL_REGEX.test(tz)
       ? ` <a href="${tz}">[ТЗ]</a>`
-      : `\nТЗ: ${escapeHTML(tz)}`;
+      : `\nТЗ: ${urlReplacer(tz)}`;
   } else {
     tzFormatted = '';
   }
 
-  let assignedPersonFormatted: string;
-  if (assigned_person) {
-    assignedPersonFormatted = usernameRegex.test(assigned_person)
-      ? `<a href="https://t.me/${assigned_person.substring(1)}">${assigned_person}</a>`
-      : escapeHTML(assigned_person);
-  } else {
-    assignedPersonFormatted = 'не назначений';
-  }
+  const assignedPersonFormatted = assigned_person
+    ? formatAssignedPerson(assigned_person)
+    : 'не назначений';
 
   const titleFormatted = url
     ? `<a href="${url}">${escapedTitle}</a>${tzFormatted}`
@@ -82,12 +68,9 @@ function formatTask(task: Task, index: number): string {
     const formattedComments = comments
       .map((comment, i) => {
         const formattedDate = formatDateTime(new Date(comment.created_at));
-        const commentText = escapeHTML(comment.comment_text);
-        const formattedCommentText = URL_REGEX.test(commentText)
-          ? `<a href="${commentText}">*тиць*</a>`
-          : commentText;
+        const commentText = urlReplacer(comment.comment_text);
 
-        return `${i + 1}. ${formattedCommentText} (${formattedDate})`;
+        return `${i + 1}. ${commentText} (${formattedDate})`;
       })
       .join('\n');
 

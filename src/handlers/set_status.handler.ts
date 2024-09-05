@@ -1,7 +1,8 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import { TaskStatuses } from '../enums';
-import { StatusIcons, StatusNames } from '../utils';
+import { StatusIcons, StatusNames, taskTitleReplacer } from '../utils';
+
 import type { QueryResult } from 'pg';
 import type { Context } from 'telegraf';
 
@@ -68,5 +69,8 @@ export const handleSetStatusTask = () => async (ctx: Context) => {
   const statusIcon = StatusIcons[status as TaskStatuses];
 
   debug(`Status changed to: ${statusName}`);
-  ctx.editMessageText(`${title}\n\nСтатус: ${statusIcon} ${statusName}`);
+  ctx.editMessageText(
+    `${taskTitleReplacer(title)}\n\nСтатус: ${statusIcon} ${statusName}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 };

@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask } from '../utils';
+import { getSelectedTask, taskTitleReplacer } from '../utils';
 import { POST_DEADLINE_LENGTH_LIMIT } from '../config';
 import type { Context } from 'telegraf';
 
@@ -57,5 +57,8 @@ export const setTaskPostDeadline = () => async (ctx: Context) => {
   }
 
   debug('Task url set successfully');
-  ctx.reply(`Новий дедлайн посту встановлено на таску: ${selectedTask.title}`);
+  ctx.reply(
+    `Новий дедлайн посту встановлено на таску: ${taskTitleReplacer(selectedTask.title)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 };

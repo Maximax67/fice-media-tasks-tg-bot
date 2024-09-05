@@ -36,5 +36,5 @@ export const deleteAllTasks = () => async (ctx: Context) => {
     debug(`${deletedTasks} tasks deleted`);
   }
 
-  ctx.reply(`Видалено всі завдання (${deletedTasks})!`);
+  ctx.reply(`Видалено всі завдання: ${deletedTasks}`);
 };

@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTaskComment } from '../utils';
+import { getSelectedTaskComment, urlReplacer } from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -46,5 +46,8 @@ export const deleteTaskComment = () => async (ctx: Context) => {
   }
 
   debug(`Comment deleted with id: ${commentId}`);
-  ctx.reply(`Видалено коментар: ${selectedComment.comment_text}`);
+  ctx.reply(`Видалено коментар: ${urlReplacer(selectedComment.comment_text)}`, {
+    link_preview_options: { is_disabled: true },
+    parse_mode: 'HTML',
+  });
 };

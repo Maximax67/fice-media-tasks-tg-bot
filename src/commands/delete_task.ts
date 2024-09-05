@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask } from '../utils';
+import { getSelectedTask, taskTitleReplacer } from '../utils';
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:delete_task');
@@ -41,5 +41,8 @@ export const deleteTask = () => async (ctx: Context) => {
   const taskTitle = result.rows[0].title;
 
   debug(`Task deleted with id: ${taskId}`);
-  ctx.reply(`Таска видалена: ${taskTitle}`);
+  ctx.reply(`Таска видалена: ${taskTitleReplacer(taskTitle)}`, {
+    link_preview_options: { is_disabled: true },
+    parse_mode: 'HTML',
+  });
 };

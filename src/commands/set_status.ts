@@ -1,7 +1,12 @@
 import createDebug from 'debug';
-import { getSelectedTask, StatusIcons, StatusNames } from '../utils';
 import { Markup, type Context } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import {
+  getSelectedTask,
+  StatusIcons,
+  StatusNames,
+  taskTitleReplacer,
+} from '../utils';
 import { TaskStatuses } from '../enums';
 
 const debug = createDebug('bot:set_status');
@@ -32,19 +37,28 @@ export const setTaskStatus = () => async (ctx: Context) => {
   Object.values(TaskStatuses).forEach((taskStatus) => {
     if (taskStatus !== selectedTask.status) {
       keyboard.push([
-        Markup.button.callback(
-          `${StatusIcons[taskStatus]} ${StatusNames[taskStatus]}`,
-          `set_status:${taskId}:${taskStatus}`,
-        ),
+        {
+          text: `${StatusIcons[taskStatus]} ${StatusNames[taskStatus]}`,
+          callback_data: `set_status:${taskId}:${taskStatus}`,
+        },
       ]);
     }
   });
 
-  keyboard.push([Markup.button.callback('Закрити', 'remove_markup')]);
+  keyboard.push([
+    {
+      text: 'Закрити',
+      callback_data: 'remove_markup',
+    },
+  ]);
 
   debug('Task added successfully');
   ctx.reply(
-    `${selectedTask.title}\n\nСтатус: ${StatusIcons[selectedTask.status]} ${StatusNames[selectedTask.status]}`,
-    Markup.inlineKeyboard(keyboard),
+    `${taskTitleReplacer(selectedTask.title)}\n\nСтатус: ${StatusIcons[selectedTask.status]} ${StatusNames[selectedTask.status]}`,
+    {
+      reply_markup: { inline_keyboard: keyboard },
+      link_preview_options: { is_disabled: true },
+      parse_mode: 'HTML',
+    },
   );
 };

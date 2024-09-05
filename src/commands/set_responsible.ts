@@ -1,8 +1,8 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask } from '../utils';
-import type { Context } from 'telegraf';
+import { getSelectedTask, taskTitleReplacer } from '../utils';
 import { RESPONSIBLE_LENGTH_LIMIT } from '../config';
+import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_responsible');
 const setTaskResponsibleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
@@ -58,5 +58,8 @@ export const setTaskResponsible = () => async (ctx: Context) => {
   }
 
   debug('Task responsible set successfully');
-  ctx.reply(`Відповідального встановлено на таску: ${selectedTask.title}`);
+  ctx.reply(
+    `Відповідального встановлено на таску: ${taskTitleReplacer(selectedTask.title)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 };

@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask } from '../utils';
+import { getSelectedTask, taskTitleReplacer } from '../utils';
 import { COMPLETE_TASK_URL_LENGTH_LIMIT } from '../config';
 import type { Context } from 'telegraf';
 
@@ -57,5 +57,8 @@ export const setTaskUrl = () => async (ctx: Context) => {
   }
 
   debug('Task url set successfully');
-  ctx.reply(`Задано нове посилання на виконану таску: ${selectedTask.title}`);
+  ctx.reply(
+    `Задано нове посилання на виконану таску: ${taskTitleReplacer(selectedTask.title)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 };

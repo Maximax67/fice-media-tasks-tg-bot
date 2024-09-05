@@ -1,6 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { formatDateTime, getTasksForChat } from '../utils';
+import {
+  formatDateTime,
+  getTasksForChat,
+  taskTitleReplacer,
+  urlReplacer,
+} from '../utils';
 import { COMMENT_TEXT_LENGTH_LIMIT, COMMENTS_LIMIT } from '../config';
 import type { Context } from 'telegraf';
 
@@ -73,8 +78,16 @@ export const addComment = () => async (ctx: Context) => {
     return;
   }
 
+  const formattedTitle = taskTitleReplacer(selectedTask.title);
+  const formattedComment = urlReplacer(commentText);
+  const formattedDatetime = formatDateTime(
+    new Date(newComment.created_at),
+    true,
+  );
+
   debug(`Comment added with id: ${newComment.id}`);
   ctx.reply(
-    `Додано коментар до таски "${selectedTask.title}": ${commentText}\n\nЧас додавання: ${formatDateTime(new Date(newComment.created_at), true)}`,
+    `Додано коментар до таски "${formattedTitle}": ${formattedComment}\n\n<i>Час додавання: ${formattedDatetime}</i>`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 };

@@ -1,26 +1,34 @@
 import createDebug from 'debug';
 import type { QueryResult } from 'pg';
-import { Markup, type Context } from 'telegraf';
+import type { Context } from 'telegraf';
 
 import { client } from '../core';
+import { formatAssignedPerson, taskTitleReplacer, urlReplacer } from '../utils';
 import {
   RESPONSIBLE_LENGTH_LIMIT,
   DEADLINE_LENGTH_LIMIT,
   POST_DEADLINE_LENGTH_LIMIT,
   TITLE_LENGTH_LIMIT,
   TZ_LENGTH_LIMIT,
-  URL_REGEX,
   TZ_ALWAYS_URL,
   TASKS_LIMIT,
 } from '../config';
+import { URL_REGEX, URL_REGEX_REPLACER } from '../constants';
 
 const debug = createDebug('bot:new_task');
-const newTaskRegex =
-  /^(\/\S+)\s+((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*)(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?(?:\s*\/\s*((?:https?:\/\/[^\s\/]+(?:\/[^\s]*)?)?[^\/]*))?$/;
 
 interface ReturnQueryWithId {
   id: number;
 }
+
+const newTaskCommandSyntaxError = (ctx: Context): void => {
+  debug('Invalid task creation command format');
+  ctx.reply(
+    'Неправильний формат створення таски!\n/new_task Назва таски / ТЗ / дедлайн / дедлайн посту / відповідальний',
+  );
+};
+
+const tempReplacerChar = '\uFFFF';
 
 export const newTask = () => async (ctx: Context) => {
   debug('Triggereыd "new_task" command');
@@ -29,64 +37,101 @@ export const newTask = () => async (ctx: Context) => {
   const thread = ctx.message!.message_thread_id || null;
   const message: string = (ctx.message as any).text;
 
-  const match = message.match(newTaskRegex);
-  if (!match || !match[2]) {
-    debug('Invalid task creation command format');
-    ctx.reply(
-      'Неправильний формат створення таски!\n/new_task Назва таски / ТЗ / дедлайн / дедлайн посту / відповідальний',
-    );
+  const spaceIndex = message.indexOf(' ');
+  if (spaceIndex === -1) {
+    newTaskCommandSyntaxError(ctx);
     return;
   }
 
-  const tz = match[3]?.trim() || null;
+  const commandData = message.substring(spaceIndex + 1);
+  const urls = commandData.match(URL_REGEX_REPLACER);
+
+  let dataArray: string[];
+  if (urls && urls.length) {
+    const commandDataWithoutUrls = commandData.replace(
+      URL_REGEX_REPLACER,
+      tempReplacerChar,
+    );
+    const dataArrayWithoutUrls = commandDataWithoutUrls.split('/');
+
+    let urlIndex = 0;
+    dataArray = dataArrayWithoutUrls.map((part) => {
+      if (part.includes(tempReplacerChar)) {
+        return part.replace(tempReplacerChar, urls[urlIndex++]);
+      }
+
+      return part;
+    });
+  } else {
+    dataArray = commandData.split('/');
+  }
+
+  const dataArrayLength = dataArray.length;
+  if (!dataArrayLength || dataArrayLength > 5) {
+    newTaskCommandSyntaxError(ctx);
+    return;
+  }
+
+  const filteredData = dataArray.map((str) => {
+    const trimmed = str.trim();
+    return trimmed === '' ? null : trimmed;
+  });
+
+  if (filteredData[0] === null) {
+    newTaskCommandSyntaxError(ctx);
+    return;
+  }
+
+  while (filteredData.length < 5) {
+    filteredData.push(null);
+  }
+
+  const [title, tz, deadline, postDeadline, responsible] = filteredData;
+  const validationErrors: string[] = [];
+
+  if (title.length > TITLE_LENGTH_LIMIT) {
+    debug('Title too long');
+    validationErrors.push(
+      `Назва таски дуже довга (${title.length} > ${TITLE_LENGTH_LIMIT}).`,
+    );
+  }
+
   if (tz) {
     if (TZ_ALWAYS_URL && !URL_REGEX.test(tz)) {
       debug('TZ is not url');
-      ctx.reply('ТЗ має бути у вигляді посилання.');
-      return;
+      validationErrors.push('ТЗ має бути у вигляді посилання.\n');
     }
     if (tz.length > TZ_LENGTH_LIMIT) {
       debug('TZ too long');
-      ctx.reply(
-        `ТЗ дуже довге (${tz.length}). Обмеження за кількістю символів: ${TZ_LENGTH_LIMIT}.`,
+      validationErrors.push(
+        `ТЗ дуже довге (${tz.length} > ${TZ_LENGTH_LIMIT}).\n`,
       );
-      return;
     }
   }
 
-  const title = match[2].trim();
-  if (title.length > TITLE_LENGTH_LIMIT) {
-    debug('Title too long');
-    ctx.reply(
-      `Назва таски дуже довга (${title.length}). Обмеження за кількістю символів: ${TITLE_LENGTH_LIMIT}.`,
-    );
-    return;
-  }
-
-  const deadline = match[4]?.trim() || null;
   if (deadline && deadline.length > DEADLINE_LENGTH_LIMIT) {
     debug('Deadline too long');
-    ctx.reply(
-      `Дедлайн таски дуже довгий (${deadline.length}). Обмеження за кількістю символів: ${DEADLINE_LENGTH_LIMIT}.`,
+    validationErrors.push(
+      `Дедлайн таски дуже довгий (${deadline.length} > ${POST_DEADLINE_LENGTH_LIMIT}).`,
     );
-    return;
   }
 
-  const postDeadline = match[5]?.trim() || null;
   if (postDeadline && postDeadline.length > POST_DEADLINE_LENGTH_LIMIT) {
     debug('Post deadline too long');
-    ctx.reply(
-      `Дедлайн посту таски дуже довгий (${postDeadline.length}). Обмеження за кількістю символів: ${POST_DEADLINE_LENGTH_LIMIT}.`,
+    validationErrors.push(
+      `Дедлайн посту таски дуже довгий (${postDeadline.length} > ${POST_DEADLINE_LENGTH_LIMIT}).`,
     );
-    return;
   }
 
-  const responsible = match[6]?.trim() || null;
   if (responsible && responsible.length > RESPONSIBLE_LENGTH_LIMIT) {
     debug('Responsible too long');
-    ctx.reply(
-      `Виконавець таски дуже довгий (${responsible.length}). Обмеження за кількістю символів: ${RESPONSIBLE_LENGTH_LIMIT}.`,
+    validationErrors.push(
+      `Виконавець таски дуже довгий (${responsible.length} > ${POST_DEADLINE_LENGTH_LIMIT}).`,
     );
+  }
+
+  if (validationErrors.length) {
+    ctx.reply(validationErrors.join('\n'));
     return;
   }
 
@@ -124,14 +169,20 @@ export const newTask = () => async (ctx: Context) => {
   debug('Task added successfully');
   ctx.reply(
     'Нова таска створена!\n\n' +
-      `${title}\n\n` +
-      `ТЗ: ${tz || 'відсутнє'}\n` +
-      `Дедлайн: ${deadline || 'відсутній'}\n` +
-      `Дедлайн посту: ${postDeadline || 'відсутній'}\n` +
-      `Відповідальний: ${responsible || 'не назначений'}`,
-    Markup.inlineKeyboard([
-      Markup.button.callback('Видалити', `delete_task:${newTask.id}`),
-      Markup.button.callback('Ок', 'remove_markup'),
-    ]),
+      `${taskTitleReplacer(title)}\n\n` +
+      `ТЗ: ${tz ? urlReplacer(tz) : 'відсутнє'}\n` +
+      `Дедлайн: ${deadline ? urlReplacer(deadline) : 'відсутній'}\n` +
+      `Дедлайн посту: ${postDeadline ? urlReplacer(postDeadline) : 'відсутній'}\n` +
+      `Відповідальний: ${responsible ? formatAssignedPerson(responsible) : 'не назначений'}`,
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: 'Видалити', callback_data: `delete_task:${newTask.id}` }],
+          [{ text: 'Ок', callback_data: 'remove_markup' }],
+        ],
+      },
+      link_preview_options: { is_disabled: true },
+      parse_mode: 'HTML',
+    },
   );
 };
