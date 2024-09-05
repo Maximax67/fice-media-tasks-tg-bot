@@ -30,13 +30,14 @@ export const handleUpdateTasks = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = (ctx.callbackQuery as any).message.message_thread_id || null;
   const tasks = await getTasksAndCommentsForChat(chatId, thread);
+  const formattedDatetime = formatDateTime(new Date(), true);
+  const updateMessage = `<i>Оновлено: ${formattedDatetime}</i>`;
 
   if (tasks.length === 0) {
     debug('No tasks found');
     try {
       await ctx.editMessageText(
-        'Немає тасок! Створіть нову командою /new_task\n' +
-          `<i>Оновлено: ${formatDateTime(new Date(), true)}</i>`,
+        'Немає тасок! Створіть нову командою /new_task\n' + updateMessage,
         editMessageParams,
       );
     } catch (e: unknown) {
@@ -55,8 +56,7 @@ export const handleUpdateTasks = () => async (ctx: Context) => {
 
   try {
     await ctx.editMessageText(
-      generateTaskList(tasks) +
-        `\n<i>Оновлено: ${formatDateTime(new Date(), true)}</i>`,
+      generateTaskList(tasks) + '\n\n' + updateMessage,
       editMessageParams,
     );
   } catch (e: unknown) {
