@@ -1,5 +1,4 @@
 import createDebug from 'debug';
-import { Markup, type Context } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import {
   getSelectedTask,
@@ -8,6 +7,8 @@ import {
   taskTitleReplacer,
 } from '../utils';
 import { TaskStatuses } from '../enums';
+
+import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_status');
 const setTaskStatusRegex = /^(\/\S+)\s+(\d+)$/;

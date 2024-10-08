@@ -1,10 +1,9 @@
 import { StatusIcons } from './status_icons';
 import { TaskStatuses } from '../enums';
-import { URL_REGEX, USERNAME_REGEX } from '../constants';
+import { URL_REGEX } from '../constants';
 import { StatusNames } from './status_names';
 import { formatDateTime } from './format_datetime';
 import { urlReplacer } from './url_replacer';
-import { escapeHtml } from './escape_html';
 import type { Task } from '../interfaces';
 import { taskTitleReplacer } from './task_title_replacer';
 import { formatAssignedPerson } from './format_assigned_person';
