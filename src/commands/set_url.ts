@@ -2,6 +2,7 @@ import createDebug from 'debug';
 import { client } from '../core';
 import { getSelectedTask, taskTitleReplacer } from '../utils';
 import { COMPLETE_TASK_URL_LENGTH_LIMIT } from '../config';
+import { TaskStatuses } from '../enums';
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_url');
@@ -45,11 +46,11 @@ export const setTaskUrl = () => async (ctx: Context) => {
   const taskId = selectedTask.id;
   const query = `
     UPDATE tasks
-    SET url = $1
-    WHERE id = $2
+    SET url = $1, status = $2
+    WHERE id = $3
   `;
 
-  const result = await client.query(query, [url, taskId]);
+  const result = await client.query(query, [url, TaskStatuses.EDITING, taskId]);
   if (!result.rowCount) {
     debug('Task not found');
     ctx.reply('Таску не знайдено. Можливо вона вже видалена');
