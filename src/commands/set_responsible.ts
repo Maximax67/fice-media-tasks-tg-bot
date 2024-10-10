@@ -1,8 +1,14 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask, taskTitleReplacer } from '../utils';
+import {
+  getSelectedTask,
+  StatusIcons,
+  StatusNames,
+  taskTitleReplacer,
+} from '../utils';
 import { RESPONSIBLE_LENGTH_LIMIT } from '../config';
 import type { Context } from 'telegraf';
+import { TaskStatuses } from '../enums';
 
 const debug = createDebug('bot:set_responsible');
 const setTaskResponsibleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
@@ -45,11 +51,15 @@ export const setTaskResponsible = () => async (ctx: Context) => {
   const taskId = selectedTask.id;
   const query = `
     UPDATE tasks
-    SET assigned_person = $1
-    WHERE id = $2
+    SET assigned_person = $1, status = $2
+    WHERE id = $3
   `;
 
-  const result = await client.query(query, [responsible, taskId]);
+  const result = await client.query(query, [
+    responsible,
+    TaskStatuses.IN_PROCESS,
+    taskId,
+  ]);
 
   if (!result.rowCount) {
     debug('Task not found');
@@ -59,7 +69,8 @@ export const setTaskResponsible = () => async (ctx: Context) => {
 
   debug('Task responsible set successfully');
   ctx.reply(
-    `Відповідального встановлено на таску: ${taskTitleReplacer(selectedTask.title)}`,
+    `Відповідального встановлено на таску: ${taskTitleReplacer(selectedTask.title)}\n\n` +
+      `Статус змінено на: ${StatusIcons.IN_PROCESS} ${StatusNames.IN_PROCESS}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 };
