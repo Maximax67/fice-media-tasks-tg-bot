@@ -14,6 +14,7 @@ import {
   TASKS_LIMIT,
 } from '../config';
 import { URL_REGEX, URL_REGEX_REPLACER } from '../constants';
+import { TaskStatuses } from '../enums';
 
 const debug = createDebug('bot:new_task');
 
@@ -141,13 +142,14 @@ export const newTask = () => async (ctx: Context) => {
       FROM tasks
       WHERE chat_id = $1
     )
-    INSERT INTO tasks (chat_id, thread, title, tz, deadline, post_deadline, assigned_person)
-    SELECT $1, $2, $3, $4, $5, $6, $7
+    INSERT INTO tasks (chat_id, thread, title, tz, deadline, post_deadline, assigned_person, status)
+    SELECT $1, $2, $3, $4, $5, $6, $7, $8
     FROM task_count
-    WHERE count < $8
+    WHERE count < $9
     RETURNING id;
   `;
 
+  const taskStatus = responsible ? TaskStatuses.IN_PROCESS : TaskStatuses.NEW;
   const result: QueryResult<ReturnQueryWithId> = await client.query(query, [
     chatId,
     thread,
@@ -156,6 +158,7 @@ export const newTask = () => async (ctx: Context) => {
     deadline,
     postDeadline,
     responsible,
+    taskStatus,
     TASKS_LIMIT,
   ]);
 
