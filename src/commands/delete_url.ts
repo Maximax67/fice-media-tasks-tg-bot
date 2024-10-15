@@ -26,7 +26,7 @@ export const deleteTaskUrl = () => async (ctx: Context) => {
     return;
   }
 
-  if (!selectedTask.tz) {
+  if (!selectedTask.url) {
     debug('No url');
     ctx.reply('Посилання відсутнє на цю таску');
     return;

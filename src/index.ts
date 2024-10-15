@@ -5,10 +5,10 @@ import {
   deleteAllTaskComments,
   deleteAllTasks,
   deleteTask,
-  deleteTaskAssignedPerson,
   deleteTaskComment,
   deleteTaskDeadline,
   deleteTaskPostDeadline,
+  deleteTaskResponsible,
   deleteTaskTz,
   deleteTaskUrl,
   getTasks,
@@ -60,7 +60,7 @@ bot.command('add_comment', addComment());
 bot.command('delete_comment', deleteTaskComment());
 bot.command('delete_all_comments', deleteAllTaskComments());
 
-bot.command('delete_assigned_person', deleteTaskAssignedPerson());
+bot.command('delete_responsible', deleteTaskResponsible());
 bot.command('delete_deadline', deleteTaskDeadline());
 bot.command('delete_post_deadline', deleteTaskPostDeadline());
 bot.command('delete_tz', deleteTaskTz());

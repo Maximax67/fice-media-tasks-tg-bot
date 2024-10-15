@@ -3,18 +3,18 @@ import { client } from '../core';
 import { getSelectedTask, taskTitleReplacer } from '../utils';
 import type { Context } from 'telegraf';
 
-const debug = createDebug('bot:delete_assigned_person');
-const deleteAssignedPersonRegex = /^(\/\S+)\s+(\d+)$/;
+const debug = createDebug('bot:delete_responsible');
+const deleteResponsibleRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const deleteTaskAssignedPerson = () => async (ctx: Context) => {
-  debug('Triggered "delete_assigned_person" command');
+export const deleteTaskResponsible = () => async (ctx: Context) => {
+  debug('Triggered "delete_responsible" command');
 
   const message: string = (ctx.message as any).text.trim();
-  const match = message.match(deleteAssignedPersonRegex);
+  const match = message.match(deleteResponsibleRegex);
   if (!match) {
-    debug('Invalid delete assigned person command format');
+    debug('Invalid delete responsible command format');
     ctx.reply(
-      'Неправильний формат команди видалення відповідального!\n/delete_assigned_person номер_таски',
+      'Неправильний формат команди видалення відповідального!\n/delete_responsible номер_таски',
     );
     return;
   }
