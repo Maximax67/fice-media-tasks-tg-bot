@@ -16,11 +16,12 @@ const taskListLegend =
   `• ${StatusIcons[TaskStatuses.WAITING_FOR_PICTURE]} — ${StatusNames[TaskStatuses.WAITING_FOR_PICTURE]}\n` +
   `• ${StatusIcons[TaskStatuses.WAITING_FOR_PUBLICATION]} — ${StatusNames[TaskStatuses.WAITING_FOR_PUBLICATION]}\n\n` +
   '<b>Корисні ресурси</b>:\n' +
-  '• <a href="https://www.notion.so/92d4818b30f2489786857def5f134b4b?pvs=4">Гайд з інфостилю</a>\n' +
-  '• <a href="https://docs.google.com/spreadsheets/d/14nw8TbXsuJ_jcPBLZYjuUpFhlxS9LGpF-sO9Vuo8avc/edit?usp=sharing">Спірні моменти</a>\n' +
-  '• <a href="https://docs.google.com/spreadsheets/d/1NGHNTGFDbVUlensextChmeUruqLnZktkaJcPkU4lqQk/edit?pli=1#gid=932356770">Реєстр гайдів</a>\n' +
+  '• <a href="https://rough-approval-ef2.notion.site/1226ef8015f58065987bf549b1122c66">Гайд з інфостилю</a>\n' +
+  '• <a href="https://docs.google.com/spreadsheets/d/14nw8TbXsuJ_jcPBLZYjuUpFhlxS9LGpF-sO9Vuo8avc/edit">Спірні моменти</a>\n' +
+  '• <a href="https://docs.google.com/spreadsheets/d/1NGHNTGFDbVUlensextChmeUruqLnZktkaJcPkU4lqQk/edit">Реєстр гайдів</a>\n' +
   '• <a href="https://www.notion.so/invite/bb7b44687447c405a49174ea0c752d71c63e2d19">Notion відділу</a>\n' +
-  '• <a href="https://telegra.ph/Reyestr-standartnih-pomilok-09-04">Реєстр стандартних помилок</a>';
+  '• <a href="https://telegra.ph/Reyestr-tipovih-pomilok-10-06">Реєстр типових помилок</a>\n' +
+  `• <a href="https://docs.google.com/spreadsheets/d/19YUgfG5q8u3flwFiSgcki4mU-ytsHdtnGaYnO-o851c/edit">Сумнівне написання</a>`;
 
 function formatTask(task: Task, index: number): string {
   const {
