@@ -47,8 +47,11 @@ export const deleteTaskUrl = () => async (ctx: Context) => {
   }
 
   debug('Task url deleted successfully');
-  ctx.reply(`Посилання видалене з таски: ${taskTitleReplacer(selectedTask.title)}`, {
-    link_preview_options: { is_disabled: true },
-    parse_mode: 'HTML',
-  });
+  ctx.reply(
+    `Посилання видалене з таски: ${taskTitleReplacer(selectedTask.title)}`,
+    {
+      link_preview_options: { is_disabled: true },
+      parse_mode: 'HTML',
+    },
+  );
 };

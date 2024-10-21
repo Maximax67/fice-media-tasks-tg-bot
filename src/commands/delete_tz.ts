@@ -47,8 +47,8 @@ export const deleteTaskTz = () => async (ctx: Context) => {
   }
 
   debug('Task tz deleted successfully');
-  ctx.reply(
-    `ТЗ видалене з таски: ${taskTitleReplacer(selectedTask.title)}`,
-    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
-  );
+  ctx.reply(`ТЗ видалене з таски: ${taskTitleReplacer(selectedTask.title)}`, {
+    link_preview_options: { is_disabled: true },
+    parse_mode: 'HTML',
+  });
 };

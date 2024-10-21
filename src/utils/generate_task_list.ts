@@ -17,11 +17,10 @@ const taskListLegend =
   `• ${StatusIcons[TaskStatuses.WAITING_FOR_PUBLICATION]} — ${StatusNames[TaskStatuses.WAITING_FOR_PUBLICATION]}\n\n` +
   '<b>Корисні ресурси</b>:\n' +
   '• <a href="https://rough-approval-ef2.notion.site/1226ef8015f58065987bf549b1122c66">Гайд з інфостилю</a>\n' +
-  '• <a href="https://docs.google.com/spreadsheets/d/14nw8TbXsuJ_jcPBLZYjuUpFhlxS9LGpF-sO9Vuo8avc/edit">Спірні моменти</a>\n' +
   '• <a href="https://docs.google.com/spreadsheets/d/1NGHNTGFDbVUlensextChmeUruqLnZktkaJcPkU4lqQk/edit">Реєстр гайдів</a>\n' +
   '• <a href="https://www.notion.so/invite/bb7b44687447c405a49174ea0c752d71c63e2d19">Notion відділу</a>\n' +
   '• <a href="https://telegra.ph/Reyestr-tipovih-pomilok-10-06">Реєстр типових помилок</a>\n' +
-  `• <a href="https://docs.google.com/spreadsheets/d/19YUgfG5q8u3flwFiSgcki4mU-ytsHdtnGaYnO-o851c/edit">Сумнівне написання</a>`;
+  '• <a href="https://docs.google.com/spreadsheets/d/19YUgfG5q8u3flwFiSgcki4mU-ytsHdtnGaYnO-o851c/edit">Сумнівне написання</a>';
 
 function formatTask(task: Task, index: number): string {
   const {
@@ -60,9 +59,7 @@ function formatTask(task: Task, index: number): string {
 
   let formattedTask =
     `${index + 1}) ${StatusIcons[status]} ${titleFormatted}\n` +
-    `Дедлайн: ${escapedDeadline}\n` +
-    `Дедлайн посту: ${escapedDeadlinePost}\n` +
-    `Відповідальний: ${assignedPersonFormatted}`;
+    `${escapedDeadline} | ${escapedDeadlinePost} | ${assignedPersonFormatted}`;
 
   if (comments && comments.length > 0) {
     const formattedComments = comments
