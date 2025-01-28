@@ -1,6 +1,6 @@
 import { TaskStatuses } from '../enums';
 
-export const StatusNames: { [key in TaskStatuses]: string } = {
+export const STATUS_NAMES: { [key in TaskStatuses]: string } = {
   [TaskStatuses.NEW]: 'Нова',
   [TaskStatuses.IN_PROCESS]: 'Написання',
   [TaskStatuses.EDITING]: 'Редагування',

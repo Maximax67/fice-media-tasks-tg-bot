@@ -12,5 +12,7 @@ export interface Task {
   post_deadline: string | null;
   assigned_person: string | null;
   status: TaskStatuses;
+  created_at: Date;
+  completed_at?: Date;
   comments?: Comment[];
 }

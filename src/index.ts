@@ -2,6 +2,7 @@ import { Telegraf } from 'telegraf';
 
 import {
   addComment,
+  autoupdate,
   deleteAllTaskComments,
   deleteAllTasks,
   deleteTask,
@@ -11,9 +12,12 @@ import {
   deleteTaskResponsible,
   deleteTaskTz,
   deleteTaskUrl,
+  edits,
+  getStats,
   getTasks,
   helpCommandReply,
   limitsCommandReply,
+  motivation,
   newTask,
   setTaskDeadline,
   setTaskPostDeadline,
@@ -31,11 +35,9 @@ import {
   handleRemoveMarkup,
 } from './handlers';
 import { development, production } from './core';
+import { BOT_TOKEN, ENVIRONMENT } from './config';
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-const BOT_TOKEN = process.env.BOT_TOKEN || '';
-const ENVIRONMENT = process.env.NODE_ENV || '';
 
 const bot = new Telegraf(BOT_TOKEN);
 
@@ -65,6 +67,11 @@ bot.command('delete_deadline', deleteTaskDeadline());
 bot.command('delete_post_deadline', deleteTaskPostDeadline());
 bot.command('delete_tz', deleteTaskTz());
 bot.command('delete_url', deleteTaskUrl());
+
+bot.command('edits', edits());
+bot.command('stats', getStats());
+bot.command('autoupdate', autoupdate());
+bot.command('motivation', motivation());
 
 bot.action(/^delete_task:(\d+)$/, handleDeleteTask());
 bot.action(/^update_tasks$/, handleUpdateTasks());

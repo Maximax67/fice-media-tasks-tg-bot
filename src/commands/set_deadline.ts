@@ -1,7 +1,12 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask, taskTitleReplacer } from '../utils';
+import {
+  autoupdateTaskList,
+  getSelectedTask,
+  taskTitleReplacer,
+} from '../utils';
 import { DEADLINE_LENGTH_LIMIT } from '../config';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_deadline');
@@ -61,4 +66,9 @@ export const setTaskDeadline = () => async (ctx: Context) => {
     `Новий дедлайн встановлено на таску: ${taskTitleReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

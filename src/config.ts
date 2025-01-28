@@ -1,7 +1,21 @@
+export const BOT_TOKEN = process.env.BOT_TOKEN || '';
+export const ENVIRONMENT = process.env.NODE_ENV || '';
+export const POSTGRESQL_LINK = process.env.POSTGRESQL_LINK;
+
 export const LOCALE = process.env.LOCALE || 'uk-UA';
 export const UTC = parseInt(process.env.UTC || '3', 10);
 
 export const LINK_REPLACER_TEXT = process.env.LINK_REPLACER_TEXT || '*тиць*';
+
+export const DESIGN_CHAT_ID = parseInt(process.env.DESIGN_CHAT_ID || '0', 10);
+export const DESIGN_THREAD_ID = process.env.DESIGN_THREAD_ID
+  ? parseInt(process.env.DESIGN_THREAD_ID || '0', 10)
+  : null;
+
+export const TEXTS_CHAT_ID = parseInt(process.env.TEXTS_CHAT_ID || '0', 10);
+export const TEXTS_THREAD_ID = process.env.DESIGN_THREAD_ID
+  ? parseInt(process.env.TEXTS_THREAD_ID || '0', 10)
+  : null;
 
 export const TITLE_LENGTH_LIMIT = parseInt(
   process.env.TITLE_LENGTH_LIMIT || '50',

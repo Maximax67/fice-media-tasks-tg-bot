@@ -1,5 +1,9 @@
 import createDebug from 'debug';
-import { generateTaskList, getTasksAndCommentsForChat } from '../utils';
+import {
+  generateTaskList,
+  getAdditionalText,
+  getTasksAndCommentsForChat,
+} from '../utils';
 import { Markup, type Context } from 'telegraf';
 
 const debug = createDebug('bot:tasks');
@@ -29,7 +33,13 @@ export const getTasks = () => async (ctx: Context) => {
     debug(`Got task list with ${tasks.length} items`);
   }
 
-  ctx.reply(generateTaskList(tasks), {
+  const additionalText = getAdditionalText(chatId, thread);
+  const taskList = generateTaskList(tasks);
+  const replyText = additionalText
+    ? taskList + '\n\n' + additionalText
+    : taskList;
+
+  ctx.reply(replyText, {
     parse_mode: 'HTML',
     link_preview_options: { is_disabled: true },
     reply_markup: {

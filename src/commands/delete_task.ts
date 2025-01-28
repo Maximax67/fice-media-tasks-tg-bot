@@ -1,6 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask, taskTitleReplacer } from '../utils';
+import {
+  autoupdateTaskList,
+  getSelectedTask,
+  taskTitleReplacer,
+} from '../utils';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:delete_task');
@@ -45,4 +50,9 @@ export const deleteTask = () => async (ctx: Context) => {
     link_preview_options: { is_disabled: true },
     parse_mode: 'HTML',
   });
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

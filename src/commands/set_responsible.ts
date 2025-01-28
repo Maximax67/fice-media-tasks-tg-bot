@@ -1,14 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import {
-  getSelectedTask,
-  StatusIcons,
-  StatusNames,
-  taskTitleReplacer,
-} from '../utils';
 import { RESPONSIBLE_LENGTH_LIMIT } from '../config';
-import type { Context } from 'telegraf';
+import { STATUS_ICONS, STATUS_NAMES } from '../constants';
+import { autoupdateTaskList, getSelectedTask, taskTitleReplacer } from '../utils';
 import { TaskStatuses } from '../enums';
+
+import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_responsible');
 const setTaskResponsibleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
@@ -70,7 +67,12 @@ export const setTaskResponsible = () => async (ctx: Context) => {
   debug('Task responsible set successfully');
   ctx.reply(
     `Відповідального встановлено на таску: ${taskTitleReplacer(selectedTask.title)}\n\n` +
-      `Статус змінено на: ${StatusIcons.IN_PROCESS} ${StatusNames.IN_PROCESS}`,
+      `Статус змінено на: ${STATUS_ICONS.IN_PROCESS} ${STATUS_NAMES.IN_PROCESS}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

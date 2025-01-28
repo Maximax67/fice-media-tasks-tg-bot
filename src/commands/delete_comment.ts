@@ -1,6 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTaskComment, urlReplacer } from '../utils';
+import {
+  autoupdateTaskList,
+  getSelectedTaskComment,
+  urlReplacer,
+} from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -50,4 +54,9 @@ export const deleteTaskComment = () => async (ctx: Context) => {
     link_preview_options: { is_disabled: true },
     parse_mode: 'HTML',
   });
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

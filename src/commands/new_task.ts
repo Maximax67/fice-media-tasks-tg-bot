@@ -3,7 +3,12 @@ import type { QueryResult } from 'pg';
 import type { Context } from 'telegraf';
 
 import { client } from '../core';
-import { formatAssignedPerson, taskTitleReplacer, urlReplacer } from '../utils';
+import {
+  autoupdateTaskList,
+  formatAssignedPerson,
+  taskTitleReplacer,
+  urlReplacer,
+} from '../utils';
 import {
   RESPONSIBLE_LENGTH_LIMIT,
   DEADLINE_LENGTH_LIMIT,
@@ -188,4 +193,6 @@ export const newTask = () => async (ctx: Context) => {
       parse_mode: 'HTML',
     },
   );
+
+  autoupdateTaskList(chatId, thread);
 };

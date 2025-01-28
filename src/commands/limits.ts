@@ -1,10 +1,10 @@
 import createDebug from 'debug';
-import { limitsMessage } from '../utils';
+import { LIMITS_MESSAGE } from '../constants';
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:limits');
 
 export const limitsCommandReply = () => async (ctx: Context) => {
   debug('Triggered "limits" command');
-  ctx.reply(limitsMessage, { parse_mode: 'HTML' });
+  ctx.reply(LIMITS_MESSAGE, { parse_mode: 'HTML' });
 };

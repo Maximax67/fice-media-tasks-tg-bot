@@ -9,13 +9,13 @@ export async function getTasksForChat(
     ? `
       SELECT *
       FROM tasks
-      WHERE chat_id = $1 AND thread = $2
+      WHERE chat_id = $1 AND thread = $2 AND completed_at IS NULL
       ORDER BY id
     `
     : `
       SELECT *
       FROM tasks
-      WHERE chat_id = $1 AND thread is NULL
+      WHERE chat_id = $1 AND thread IS NULL AND completed_at IS NULL
       ORDER BY id
     `;
 

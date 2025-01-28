@@ -1,13 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import {
-  getSelectedTask,
-  StatusIcons,
-  StatusNames,
-  taskTitleReplacer,
-} from '../utils';
-import { COMPLETE_TASK_URL_LENGTH_LIMIT } from '../config';
 import { TaskStatuses } from '../enums';
+import { STATUS_ICONS, STATUS_NAMES } from '../constants';
+import { COMPLETE_TASK_URL_LENGTH_LIMIT } from '../config';
+import { autoupdateTaskList, getSelectedTask, taskTitleReplacer } from '../utils';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_url');
@@ -65,7 +62,12 @@ export const setTaskUrl = () => async (ctx: Context) => {
   debug('Task url set successfully');
   ctx.reply(
     `Задано нове посилання на виконану таску: ${taskTitleReplacer(selectedTask.title)}\n\n` +
-      `Статус змінено на: ${StatusIcons.EDITING} ${StatusNames.EDITING}`,
+      `Статус змінено на: ${STATUS_ICONS.EDITING} ${STATUS_NAMES.EDITING}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

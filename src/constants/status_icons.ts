@@ -1,6 +1,6 @@
 import { TaskStatuses } from '../enums';
 
-export const StatusIcons: { [key in TaskStatuses]: string } = {
+export const STATUS_ICONS: { [key in TaskStatuses]: string } = {
   [TaskStatuses.NEW]: '🔥',
   [TaskStatuses.IN_PROCESS]: '✏️',
   [TaskStatuses.EDITING]: '🔍',

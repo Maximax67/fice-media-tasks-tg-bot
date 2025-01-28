@@ -1,28 +1,23 @@
-import { StatusIcons } from './status_icons';
 import { TaskStatuses } from '../enums';
-import { URL_REGEX } from '../constants';
-import { StatusNames } from './status_names';
+import { STATUS_ICONS, STATUS_NAMES, URL_REGEX } from '../constants';
+
 import { formatDateTime } from './format_datetime';
 import { urlReplacer } from './url_replacer';
-import type { Task } from '../interfaces';
+
 import { taskTitleReplacer } from './task_title_replacer';
 import { formatAssignedPerson } from './format_assigned_person';
+import type { Task } from '../interfaces';
+import { formatDate } from './format_date';
 
 const taskListLegend =
   '<b>Легенда</b>:\n' +
-  `• ${StatusIcons[TaskStatuses.NEW]} — ${StatusNames[TaskStatuses.NEW]}\n` +
-  `• ${StatusIcons[TaskStatuses.IN_PROCESS]} — ${StatusNames[TaskStatuses.IN_PROCESS]}\n` +
-  `• ${StatusIcons[TaskStatuses.EDITING]} — ${StatusNames[TaskStatuses.EDITING]}\n` +
-  `• ${StatusIcons[TaskStatuses.WAITING_FOR_PICTURE]} — ${StatusNames[TaskStatuses.WAITING_FOR_PICTURE]}\n` +
-  `• ${StatusIcons[TaskStatuses.WAITING_FOR_PUBLICATION]} — ${StatusNames[TaskStatuses.WAITING_FOR_PUBLICATION]}\n\n` +
-  '<b>Корисні ресурси</b>:\n' +
-  '• <a href="https://rough-approval-ef2.notion.site/1226ef8015f58065987bf549b1122c66">Гайд з інфостилю</a>\n' +
-  '• <a href="https://docs.google.com/spreadsheets/d/1NGHNTGFDbVUlensextChmeUruqLnZktkaJcPkU4lqQk/edit">Реєстр гайдів</a>\n' +
-  '• <a href="https://www.notion.so/invite/bb7b44687447c405a49174ea0c752d71c63e2d19">Notion відділу</a>\n' +
-  '• <a href="https://telegra.ph/Reyestr-tipovih-pomilok-10-06">Реєстр типових помилок</a>\n' +
-  '• <a href="https://docs.google.com/spreadsheets/d/19YUgfG5q8u3flwFiSgcki4mU-ytsHdtnGaYnO-o851c/edit">Сумнівне написання</a>';
+  `• ${STATUS_ICONS[TaskStatuses.NEW]} — ${STATUS_NAMES[TaskStatuses.NEW]}\n` +
+  `• ${STATUS_ICONS[TaskStatuses.IN_PROCESS]} — ${STATUS_NAMES[TaskStatuses.IN_PROCESS]}\n` +
+  `• ${STATUS_ICONS[TaskStatuses.EDITING]} — ${STATUS_NAMES[TaskStatuses.EDITING]}\n` +
+  `• ${STATUS_ICONS[TaskStatuses.WAITING_FOR_PICTURE]} — ${STATUS_NAMES[TaskStatuses.WAITING_FOR_PICTURE]}\n` +
+  `• ${STATUS_ICONS[TaskStatuses.WAITING_FOR_PUBLICATION]} — ${STATUS_NAMES[TaskStatuses.WAITING_FOR_PUBLICATION]}`;
 
-function formatTask(task: Task, index: number): string {
+export function formatTask(task: Task, index: number): string {
   const {
     title,
     deadline,
@@ -58,7 +53,7 @@ function formatTask(task: Task, index: number): string {
     : escapedTitle + tzFormatted;
 
   let formattedTask =
-    `${index + 1}) ${StatusIcons[status]} ${titleFormatted}\n` +
+    `${index + 1}) ${STATUS_ICONS[status]} ${titleFormatted}\n` +
     `${escapedDeadline} | ${escapedDeadlinePost} | ${assignedPersonFormatted}`;
 
   if (comments && comments.length > 0) {
@@ -75,6 +70,18 @@ function formatTask(task: Task, index: number): string {
   }
 
   return formattedTask;
+}
+
+export function formatTaskMinimalistic(task: Task): string {
+  const { title, url, status, completed_at } = task;
+  const escapedTitle = taskTitleReplacer(title, true);
+  const titleFormatted = url
+    ? `<a href="${url}">${escapedTitle}</a>`
+    : escapedTitle;
+
+  return completed_at
+    ? `${formatDate(completed_at)} - ${titleFormatted}\n`
+    : `${STATUS_ICONS[status]} ${titleFormatted}\n`;
 }
 
 export function generateTaskList(tasks: Task[]): string {

@@ -1,11 +1,12 @@
 import createDebug from 'debug';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+
 import {
+  autoupdateTaskList,
   getSelectedTask,
-  StatusIcons,
-  StatusNames,
   taskTitleReplacer,
 } from '../utils';
+import { STATUS_ICONS, STATUS_NAMES } from '../constants';
 import { TaskStatuses } from '../enums';
 
 import type { Context } from 'telegraf';
@@ -39,7 +40,7 @@ export const setTaskStatus = () => async (ctx: Context) => {
     if (taskStatus !== selectedTask.status) {
       keyboard.push([
         {
-          text: `${StatusIcons[taskStatus]} ${StatusNames[taskStatus]}`,
+          text: `${STATUS_ICONS[taskStatus]} ${STATUS_NAMES[taskStatus]}`,
           callback_data: `set_status:${taskId}:${taskStatus}`,
         },
       ]);
@@ -55,11 +56,16 @@ export const setTaskStatus = () => async (ctx: Context) => {
 
   debug('Task added successfully');
   ctx.reply(
-    `${taskTitleReplacer(selectedTask.title)}\n\nСтатус: ${StatusIcons[selectedTask.status]} ${StatusNames[selectedTask.status]}`,
+    `${taskTitleReplacer(selectedTask.title)}\n\nСтатус: ${STATUS_ICONS[selectedTask.status]} ${STATUS_NAMES[selectedTask.status]}`,
     {
       reply_markup: { inline_keyboard: keyboard },
       link_preview_options: { is_disabled: true },
       parse_mode: 'HTML',
     },
   );
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

@@ -22,7 +22,7 @@ export async function getTasksAndCommentsForChat(
         ) AS comments
       FROM tasks t
       LEFT JOIN comments c ON t.id = c.task_id
-      WHERE t.chat_id = $1 AND t.thread = $2
+      WHERE t.chat_id = $1 AND t.thread = $2 AND completed_at IS NULL
       GROUP BY t.id
       ORDER BY t.id
     `
@@ -42,7 +42,7 @@ export async function getTasksAndCommentsForChat(
         ) AS comments
       FROM tasks t
       LEFT JOIN comments c ON t.id = c.task_id
-      WHERE t.chat_id = $1 AND t.thread IS NULL
+      WHERE t.chat_id = $1 AND t.thread IS NULL AND completed_at IS NULL
       GROUP BY t.id
       ORDER BY t.id
     `;

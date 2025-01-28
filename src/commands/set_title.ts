@@ -1,7 +1,8 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask } from '../utils';
 import { TITLE_LENGTH_LIMIT } from '../config';
+import { autoupdateTaskList, getSelectedTask } from '../utils';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_title');
@@ -59,4 +60,9 @@ export const setTaskTitle = () => async (ctx: Context) => {
 
   debug('Task title updated successfully');
   ctx.reply('Назву таски оновлено');
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

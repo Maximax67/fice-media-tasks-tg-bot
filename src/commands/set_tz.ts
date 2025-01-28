@@ -1,8 +1,13 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getSelectedTask, taskTitleReplacer } from '../utils';
+import {
+  autoupdateTaskList,
+  getSelectedTask,
+  taskTitleReplacer,
+} from '../utils';
 import { TZ_ALWAYS_URL } from '../config';
 import { URL_REGEX } from '../constants';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:set_tz');
@@ -60,4 +65,9 @@ export const setTaskTz = () => async (ctx: Context) => {
     `Задано нове тз для таски: ${taskTitleReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
+
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || null;
+
+  autoupdateTaskList(chatId, thread);
 };

@@ -1,5 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { autoupdateTaskList } from '../utils';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:delete_all_tasks');
@@ -12,29 +14,33 @@ export const deleteAllTasks = () => async (ctx: Context) => {
 
   const query = thread
     ? `
-      DELETE FROM tasks
-      WHERE chat_id = $1 AND thread = $2
-    `
+    UPDATE tasks
+    SET completed_at = CURRENT_TIMESTAMP
+    WHERE chat_id = $1 AND thread = $2 AND completed_at IS NULL
+  `
     : `
-      DELETE FROM tasks
-      WHERE chat_id = $1 AND thread is NULL
-    `;
+    UPDATE tasks
+    SET completed_at = CURRENT_TIMESTAMP
+    WHERE chat_id = $1 AND thread IS NULL AND completed_at IS NULL
+  `;
 
   const params = thread ? [chatId, thread] : [chatId];
   const res = await client.query(query, params);
-  const deletedTasks = res.rowCount;
+  const deletedTasksCount = res.rowCount;
 
-  if (!deletedTasks) {
+  if (!deletedTasksCount) {
     debug('Task list is empty');
     ctx.reply('Наразі немає тасок!');
     return;
   }
 
-  if (deletedTasks === 1) {
+  if (deletedTasksCount === 1) {
     debug('1 task deleted');
   } else {
-    debug(`${deletedTasks} tasks deleted`);
+    debug(`${deletedTasksCount} tasks deleted`);
   }
 
-  ctx.reply(`Видалено всі завдання: ${deletedTasks}`);
+  ctx.reply(`Видалено всі завдання: ${deletedTasksCount}`);
+
+  autoupdateTaskList(chatId, thread);
 };

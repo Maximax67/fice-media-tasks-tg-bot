@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 import { TaskStatuses } from '../enums';
+import { ENVIRONMENT, POSTGRESQL_LINK } from '../config';
 
-const POSTGRESQL_LINK = process.env.POSTGRESQL_LINK;
 if (!POSTGRESQL_LINK) {
   throw new Error('POSTGRESQL_LINK is not set.');
 }
@@ -24,7 +24,9 @@ const createTableQuery = `
     deadline TEXT,
     post_deadline TEXT,
     assigned_person TEXT,
-    status task_statuses DEFAULT '${TaskStatuses.NEW}'
+    status task_statuses DEFAULT '${TaskStatuses.NEW}',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMPTZ
   );
 
   CREATE INDEX IF NOT EXISTS idx_tasks_chat_and_thread ON tasks (chat_id, thread);
@@ -37,13 +39,23 @@ const createTableQuery = `
   );
 
   CREATE INDEX IF NOT EXISTS idx_comments_task_id ON comments (task_id);
+
+  CREATE TABLE IF NOT EXISTS autoupdate_messages (
+    chat_id BIGINT NOT NULL,
+    thread BIGINT,
+    message_id BIGINT NOT NULL,
+    CONSTRAINT autoupdate_chat_thread_unique UNIQUE (chat_id, thread)
+  );
 `;
 
 const client = new Client({
   connectionString: POSTGRESQL_LINK,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl:
+    ENVIRONMENT === 'production'
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
 });
 
 client.connect(function (err) {

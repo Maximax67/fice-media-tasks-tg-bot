@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { getTasksForChat, urlReplacer } from '../utils';
+import { autoupdateTaskList, getTasksForChat, urlReplacer } from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -63,4 +63,6 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
     `Видалено коментарі (${result.rowCount}) до таски: ${urlReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
+
+  autoupdateTaskList(chatId, thread);
 };

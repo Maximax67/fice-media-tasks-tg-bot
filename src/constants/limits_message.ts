@@ -12,7 +12,7 @@ import {
   TZ_LENGTH_LIMIT,
 } from '../config';
 
-export const limitsMessage =
+export const LIMITS_MESSAGE =
   '<b>Встановлені ліміти:</b>\n' +
   `Кількість тасок: ${TASKS_LIMIT}\n` +
   `Кількість коментарів до таски: ${COMMENTS_LIMIT}\n` +

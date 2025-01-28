@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import type { Context } from 'telegraf';
+import { autoupdateTaskList } from '../utils';
 
 const debug = createDebug('bot:handle_delete_task');
 
@@ -39,4 +40,5 @@ export const handleDeleteTask = () => async (ctx: Context) => {
 
   debug(`Task deleted. Id: ${taskId}`);
   await ctx.editMessageText('Завдання видалено!');
+  autoupdateTaskList(chatId, thread);
 };
