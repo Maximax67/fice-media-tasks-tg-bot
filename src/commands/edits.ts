@@ -21,7 +21,7 @@ export const edits = () => async (ctx: Context) => {
     return;
   }
 
-  let formattedTasks = '<b>===== Очікують правок =====</b>';
+  let formattedTasks = '<b>== Очікують правок ==</b>';
   let counter = 0;
 
   for (const task of tasks) {
