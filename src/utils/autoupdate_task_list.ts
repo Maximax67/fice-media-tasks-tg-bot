@@ -15,7 +15,7 @@ const editMessageParams: ExtraEditMessageText = {
     inline_keyboard: [
       [
         {
-          text: 'Оновити',
+          text: '🔄 Оновити',
           callback_data: 'update_tasks',
         },
       ],
@@ -23,7 +23,10 @@ const editMessageParams: ExtraEditMessageText = {
   },
 };
 
-export const autoupdateTaskList = async (chatId: number, thread: number | null) => {
+export const autoupdateTaskList = async (
+  chatId: number,
+  thread: number | null,
+) => {
   const query = thread
     ? 'SELECT message_id FROM autoupdate_messages WHERE chat_id = $1 AND thread = $2'
     : 'SELECT message_id FROM autoupdate_messages WHERE chat_id = $1 AND thread IS NULL';

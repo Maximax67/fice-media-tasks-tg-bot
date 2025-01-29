@@ -15,7 +15,7 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
 
   if (!match) {
     debug('Invalid task delete all comments command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди видалення всіх коментарів!\n/delete_all_comments номер_таски',
     );
     return;
@@ -25,7 +25,7 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
 
   if (taskNumber < 1) {
     debug('Invalid task number');
-    ctx.reply('Не існує таски з таким порядковим номером');
+    await ctx.reply('Не існує таски з таким порядковим номером');
     return;
   }
 
@@ -35,13 +35,13 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
 
   if (!tasks.length) {
     debug('There are no tasks');
-    ctx.reply('Не створено жодної таски');
+    await ctx.reply('Не створено жодної таски');
     return;
   }
 
   if (taskNumber > tasks.length) {
     debug(`Invalid task number: ${taskNumber}`);
-    ctx.reply('Не існує таски з таким порядковим номером');
+    await ctx.reply('Не існує таски з таким порядковим номером');
     return;
   }
 
@@ -54,15 +54,17 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
 
   if (!result.rowCount) {
     debug('No comments found for the task');
-    ctx.reply('Коментарі до таски не знайдено. Можливо вони вже видалені');
+    await ctx.reply(
+      'Коментарі до таски не знайдено. Можливо вони вже видалені',
+    );
     return;
   }
 
   debug(`Deleted ${result.rowCount} comment(s) for task id: ${taskId}`);
-  ctx.reply(
+  await ctx.reply(
     `Видалено коментарі (${result.rowCount}) до таски: ${urlReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

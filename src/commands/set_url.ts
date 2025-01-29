@@ -3,7 +3,11 @@ import { client } from '../core';
 import { TaskStatuses } from '../enums';
 import { STATUS_ICONS, STATUS_NAMES } from '../constants';
 import { COMPLETE_TASK_URL_LENGTH_LIMIT } from '../config';
-import { autoupdateTaskList, getSelectedTask, taskTitleReplacer } from '../utils';
+import {
+  autoupdateTaskList,
+  getSelectedTask,
+  taskTitleReplacer,
+} from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -17,7 +21,7 @@ export const setTaskUrl = () => async (ctx: Context) => {
   const match = message.match(setTaskUrlRegex);
   if (!match) {
     debug('Invalid set url command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди встановлення посилання на виконану таску!\n/set_url номер_таски url',
     );
     return;
@@ -26,7 +30,7 @@ export const setTaskUrl = () => async (ctx: Context) => {
   const url = match[3].trim();
   if (url.length > COMPLETE_TASK_URL_LENGTH_LIMIT) {
     debug('Url too long');
-    ctx.reply(
+    await ctx.reply(
       `Посилання дуже довге (${url.length}). Обмеження за кількістю символів: ${COMPLETE_TASK_URL_LENGTH_LIMIT}.`,
     );
     return;
@@ -41,7 +45,7 @@ export const setTaskUrl = () => async (ctx: Context) => {
 
   if (url === selectedTask.url) {
     debug('URL not changed');
-    ctx.reply('Новий url ідентичний з попереднім');
+    await ctx.reply('Новий url ідентичний з попереднім');
     return;
   }
 
@@ -55,12 +59,12 @@ export const setTaskUrl = () => async (ctx: Context) => {
   const result = await client.query(query, [url, TaskStatuses.EDITING, taskId]);
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task url set successfully');
-  ctx.reply(
+  await ctx.reply(
     `Задано нове посилання на виконану таску: ${taskTitleReplacer(selectedTask.title)}\n\n` +
       `Статус змінено на: ${STATUS_ICONS.EDITING} ${STATUS_NAMES.EDITING}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
@@ -69,5 +73,5 @@ export const setTaskUrl = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

@@ -13,7 +13,7 @@ export const getStats = () => async (ctx: Context) => {
 
   if (!match) {
     debug('Invalid get stats command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди отримання статистики користувача!\n/stats юзернейм',
     );
     return;
@@ -39,7 +39,7 @@ export const getStats = () => async (ctx: Context) => {
 
   if (!tasks.length) {
     debug('This user does not complete any task');
-    ctx.reply(`${responsible} не був відповідальним за жодну з тасок!`);
+    await ctx.reply(`${responsible} не був відповідальним за жодну з тасок!`);
     return;
   }
 
@@ -56,8 +56,8 @@ export const getStats = () => async (ctx: Context) => {
 
   let statsMessage =
     `== Статистика ${formatAssignedPerson(responsible)} ==\n\n` +
-    `Виконано завдань: ${completedTasks.length}\n` +
-    `Поточних завдань: ${inProgressTasks.length}\n\n`;
+    `Виконано завдань: <b>${completedTasks.length}</b>\n` +
+    `Поточних завдань: <b>${inProgressTasks.length}</b>\n\n`;
 
   if (inProgressTasks.length) {
     const formattedInProgressTasks = inProgressTasks
@@ -79,7 +79,7 @@ export const getStats = () => async (ctx: Context) => {
     statsMessage += `<b>Виконані таски:</b>\n${formattedCompletedTasks}`;
   }
 
-  ctx.reply(statsMessage, {
+  await ctx.reply(statsMessage, {
     parse_mode: 'HTML',
     link_preview_options: { is_disabled: true },
   });

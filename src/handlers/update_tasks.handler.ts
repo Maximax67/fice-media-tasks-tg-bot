@@ -17,7 +17,7 @@ const editMessageParams: ExtraEditMessageText = {
     inline_keyboard: [
       [
         {
-          text: 'Оновити',
+          text: '🔄 Оновити',
           callback_data: 'update_tasks',
         },
       ],

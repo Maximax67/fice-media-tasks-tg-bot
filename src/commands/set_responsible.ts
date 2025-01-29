@@ -2,7 +2,11 @@ import createDebug from 'debug';
 import { client } from '../core';
 import { RESPONSIBLE_LENGTH_LIMIT } from '../config';
 import { STATUS_ICONS, STATUS_NAMES } from '../constants';
-import { autoupdateTaskList, getSelectedTask, taskTitleReplacer } from '../utils';
+import {
+  autoupdateTaskList,
+  getSelectedTask,
+  taskTitleReplacer,
+} from '../utils';
 import { TaskStatuses } from '../enums';
 
 import type { Context } from 'telegraf';
@@ -17,7 +21,7 @@ export const setTaskResponsible = () => async (ctx: Context) => {
   const match = message.match(setTaskResponsibleRegex);
   if (!match) {
     debug('Invalid set responsible command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди встановлення відповідального за таску!\n/set_responsible номер_таски юзернейм',
     );
     return;
@@ -26,7 +30,7 @@ export const setTaskResponsible = () => async (ctx: Context) => {
   const responsible = match[3];
   if (responsible.length > RESPONSIBLE_LENGTH_LIMIT) {
     debug('Responsible too long');
-    ctx.reply(
+    await ctx.reply(
       `Виконавець таски дуже довгий (${responsible.length}). Обмеження за кількістю символів: ${RESPONSIBLE_LENGTH_LIMIT}.`,
     );
     return;
@@ -41,7 +45,7 @@ export const setTaskResponsible = () => async (ctx: Context) => {
 
   if (responsible === selectedTask.assigned_person) {
     debug('Responsible not changed');
-    ctx.reply('Відповідальний не змінився');
+    await ctx.reply('Відповідальний не змінився');
     return;
   }
 
@@ -60,12 +64,12 @@ export const setTaskResponsible = () => async (ctx: Context) => {
 
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task responsible set successfully');
-  ctx.reply(
+  await ctx.reply(
     `Відповідального встановлено на таску: ${taskTitleReplacer(selectedTask.title)}\n\n` +
       `Статус змінено на: ${STATUS_ICONS.IN_PROCESS} ${STATUS_NAMES.IN_PROCESS}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
@@ -74,5 +78,5 @@ export const setTaskResponsible = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

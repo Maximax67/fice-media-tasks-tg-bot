@@ -22,7 +22,7 @@ export const addComment = () => async (ctx: Context) => {
 
   if (!match) {
     debug('Invalid task add comment command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди додавання коментаря!\n/add_comment номер_таски Текст коментаря',
     );
     return;
@@ -31,7 +31,7 @@ export const addComment = () => async (ctx: Context) => {
   const commentText = match[3].trim();
   if (commentText.length > COMMENT_TEXT_LENGTH_LIMIT) {
     debug('Comment text too long');
-    ctx.reply(
+    await ctx.reply(
       `Текст коментаря дуже довгий (${commentText.length}). Обмеження за кількістю символів: ${COMMENT_TEXT_LENGTH_LIMIT}.`,
     );
     return;
@@ -44,13 +44,13 @@ export const addComment = () => async (ctx: Context) => {
 
   if (!tasks.length) {
     debug('There are no tasks');
-    ctx.reply('Не створено жодної таски');
+    await ctx.reply('Не створено жодної таски');
     return;
   }
 
   if (taskNumber > tasks.length) {
     debug(`Invalid task number: ${taskNumber}`);
-    ctx.reply('Не існує таски з таким порядковим номером');
+    await ctx.reply('Не існує таски з таким порядковим номером');
     return;
   }
 
@@ -76,7 +76,9 @@ export const addComment = () => async (ctx: Context) => {
   const newComment = result.rows[0];
   if (!newComment) {
     debug(`Max comments limit reached for task_id: ${taskId}`);
-    ctx.reply(`Ви досягли ліміту коментарів на цю таску (${COMMENTS_LIMIT}).`);
+    await ctx.reply(
+      `Ви досягли ліміту коментарів на цю таску (${COMMENTS_LIMIT}).`,
+    );
     return;
   }
 
@@ -88,10 +90,10 @@ export const addComment = () => async (ctx: Context) => {
   );
 
   debug(`Comment added with id: ${newComment.id}`);
-  ctx.reply(
+  await ctx.reply(
     `Додано коментар до таски "${formattedTitle}": ${formattedComment}\n\n<i>Час додавання: ${formattedDatetime}</i>`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

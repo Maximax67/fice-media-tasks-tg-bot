@@ -19,7 +19,7 @@ export const deleteTask = () => async (ctx: Context) => {
 
   if (!match) {
     debug('Invalid task delete command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди видалення таски!\n/delete_task номер_таски',
     );
     return;
@@ -34,19 +34,19 @@ export const deleteTask = () => async (ctx: Context) => {
 
   const taskId = selectedTask.id;
   const result = await client.query(
-    'DELETE FROM tasks WHERE id = $1 RETURNING title',
+    'UPDATE tasks SET completed_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING title',
     [taskId],
   );
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   const taskTitle = result.rows[0].title;
 
   debug(`Task deleted with id: ${taskId}`);
-  ctx.reply(`Таска видалена: ${taskTitleReplacer(taskTitle)}`, {
+  await ctx.reply(`Таска видалена: ${taskTitleReplacer(taskTitle)}`, {
     link_preview_options: { is_disabled: true },
     parse_mode: 'HTML',
   });
@@ -54,5 +54,5 @@ export const deleteTask = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

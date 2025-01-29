@@ -13,7 +13,7 @@ export const autoupdate = () => async (ctx: Context) => {
   const match = message.match(autoupdateRegex);
   if (!match) {
     debug('Invalid autoupdate command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди встановлення автоматичного оновлення списку завдань!\n/autoupdate посилання на повідомлення в телеграм зі списком тасок',
     );
     return;
@@ -26,9 +26,14 @@ export const autoupdate = () => async (ctx: Context) => {
   const urlThread = match.length === 6 ? parseInt(match[4], 10) : null;
   const messageId = parseInt(match[match.length - 1], 10);
 
-  if (chatId.toString() !== "-100" + urlChatId.toString() || thread !== urlThread) {
+  if (
+    chatId.toString() !== '-100' + urlChatId.toString() ||
+    thread !== urlThread
+  ) {
     debug('Provided url for message in another chat or thread');
-    ctx.reply('Надане посилання веде на повідомлення у іншому чаті або гілці!');
+    await ctx.reply(
+      'Надане посилання веде на повідомлення у іншому чаті або гілці!',
+    );
     return;
   }
 
@@ -44,9 +49,9 @@ export const autoupdate = () => async (ctx: Context) => {
 
   if (!result.rowCount) {
     debug('This message is already set for autoupdate');
-    ctx.reply('Це повідомлення вже автоматично оновлюється!');
+    await ctx.reply('Це повідомлення вже автоматично оновлюється!');
     return;
   }
 
-  ctx.reply('Це повідомлення тепер автоматично оновлюватиметься!');
+  await ctx.reply('Це повідомлення тепер автоматично оновлюватиметься!');
 };

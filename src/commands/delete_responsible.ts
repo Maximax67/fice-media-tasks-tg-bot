@@ -18,7 +18,7 @@ export const deleteTaskResponsible = () => async (ctx: Context) => {
   const match = message.match(deleteResponsibleRegex);
   if (!match) {
     debug('Invalid delete responsible command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди видалення відповідального!\n/delete_responsible номер_таски',
     );
     return;
@@ -33,7 +33,7 @@ export const deleteTaskResponsible = () => async (ctx: Context) => {
 
   if (!selectedTask.assigned_person) {
     debug('No assigned person');
-    ctx.reply('Відповідальний не назначений на цю таску');
+    await ctx.reply('Відповідальний не назначений на цю таску');
     return;
   }
 
@@ -47,12 +47,12 @@ export const deleteTaskResponsible = () => async (ctx: Context) => {
   const result = await client.query(query, [taskId]);
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task assigned person deleted successfully');
-  ctx.reply(
+  await ctx.reply(
     `Відповідальний видалений з таски: ${taskTitleReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
@@ -60,5 +60,5 @@ export const deleteTaskResponsible = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

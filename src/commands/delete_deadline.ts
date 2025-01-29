@@ -18,7 +18,7 @@ export const deleteTaskDeadline = () => async (ctx: Context) => {
   const match = message.match(deleteDeadlineRegex);
   if (!match) {
     debug('Invalid delete deadline command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди видалення дедлайну!\n/delete_deadline номер_таски',
     );
     return;
@@ -33,7 +33,7 @@ export const deleteTaskDeadline = () => async (ctx: Context) => {
 
   if (!selectedTask.deadline) {
     debug('No deadeline');
-    ctx.reply('Дедлайн відсутній на цю таску');
+    await ctx.reply('Дедлайн відсутній на цю таску');
     return;
   }
 
@@ -47,12 +47,12 @@ export const deleteTaskDeadline = () => async (ctx: Context) => {
   const result = await client.query(query, [taskId]);
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task deadline deleted successfully');
-  ctx.reply(
+  await ctx.reply(
     `Дедлайн видалений з таски: ${taskTitleReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
@@ -60,5 +60,5 @@ export const deleteTaskDeadline = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

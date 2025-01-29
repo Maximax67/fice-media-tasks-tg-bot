@@ -18,7 +18,7 @@ export const deleteTaskUrl = () => async (ctx: Context) => {
   const match = message.match(deleteUrlRegex);
   if (!match) {
     debug('Invalid delete url command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди видалення посилання на виконану таску!\n/delete_url номер_таски',
     );
     return;
@@ -33,7 +33,7 @@ export const deleteTaskUrl = () => async (ctx: Context) => {
 
   if (!selectedTask.url) {
     debug('No url');
-    ctx.reply('Посилання відсутнє на цю таску');
+    await ctx.reply('Посилання відсутнє на цю таску');
     return;
   }
 
@@ -47,12 +47,12 @@ export const deleteTaskUrl = () => async (ctx: Context) => {
   const result = await client.query(query, [taskId]);
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task url deleted successfully');
-  ctx.reply(
+  await ctx.reply(
     `Посилання видалене з таски: ${taskTitleReplacer(selectedTask.title)}`,
     {
       link_preview_options: { is_disabled: true },
@@ -63,5 +63,5 @@ export const deleteTaskUrl = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

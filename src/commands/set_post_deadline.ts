@@ -19,7 +19,7 @@ export const setTaskPostDeadline = () => async (ctx: Context) => {
   const match = message.match(setTaskDeadlineRegex);
   if (!match) {
     debug('Invalid set post deadline format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди встановлення дедлайну посту!\n/set_post_deadline номер_таски дедлайн',
     );
     return;
@@ -28,7 +28,7 @@ export const setTaskPostDeadline = () => async (ctx: Context) => {
   const postDeadline = match[3];
   if (postDeadline.length > POST_DEADLINE_LENGTH_LIMIT) {
     debug('Post deadline too long');
-    ctx.reply(
+    await ctx.reply(
       `Дедлайн посту таски дуже довгий (${postDeadline.length}). Обмеження за кількістю символів: ${POST_DEADLINE_LENGTH_LIMIT}.`,
     );
     return;
@@ -43,7 +43,7 @@ export const setTaskPostDeadline = () => async (ctx: Context) => {
 
   if (postDeadline === selectedTask.post_deadline) {
     debug('Deadline not changed');
-    ctx.reply('Новий дедлайн посту ідентичний з попереднім');
+    await ctx.reply('Новий дедлайн посту ідентичний з попереднім');
     return;
   }
 
@@ -57,12 +57,12 @@ export const setTaskPostDeadline = () => async (ctx: Context) => {
   const result = await client.query(query, [postDeadline, taskId]);
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task url set successfully');
-  ctx.reply(
+  await ctx.reply(
     `Новий дедлайн посту встановлено на таску: ${taskTitleReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
@@ -70,5 +70,5 @@ export const setTaskPostDeadline = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

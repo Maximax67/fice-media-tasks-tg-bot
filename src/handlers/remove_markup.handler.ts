@@ -3,7 +3,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:handle_remove_markup');
 
-export const handleRemoveMarkup = () => (ctx: Context) => {
+export const handleRemoveMarkup = () => async (ctx: Context) => {
   debug('Triggered "handleRemoveMarkup" handler');
-  ctx.editMessageReplyMarkup(undefined);
+  await ctx.editMessageReplyMarkup(undefined);
 };

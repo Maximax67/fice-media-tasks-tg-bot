@@ -6,5 +6,5 @@ const debug = createDebug('bot:help');
 
 export const helpCommandReply = () => async (ctx: Context) => {
   debug('Triggered "help" command');
-  ctx.reply(HELP_MESSAGE, { parse_mode: 'HTML' });
+  await ctx.reply(HELP_MESSAGE, { parse_mode: 'HTML' });
 };

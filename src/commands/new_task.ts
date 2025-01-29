@@ -27,9 +27,9 @@ interface ReturnQueryWithId {
   id: number;
 }
 
-const newTaskCommandSyntaxError = (ctx: Context): void => {
+const newTaskCommandSyntaxError = async (ctx: Context): Promise<void> => {
   debug('Invalid task creation command format');
-  ctx.reply(
+  await ctx.reply(
     'Неправильний формат створення таски!\n/new_task Назва таски / ТЗ / дедлайн / дедлайн посту / відповідальний',
   );
 };
@@ -45,7 +45,7 @@ export const newTask = () => async (ctx: Context) => {
 
   const spaceIndex = message.indexOf(' ');
   if (spaceIndex === -1) {
-    newTaskCommandSyntaxError(ctx);
+    await newTaskCommandSyntaxError(ctx);
     return;
   }
 
@@ -74,7 +74,7 @@ export const newTask = () => async (ctx: Context) => {
 
   const dataArrayLength = dataArray.length;
   if (!dataArrayLength || dataArrayLength > 5) {
-    newTaskCommandSyntaxError(ctx);
+    await newTaskCommandSyntaxError(ctx);
     return;
   }
 
@@ -84,7 +84,7 @@ export const newTask = () => async (ctx: Context) => {
   });
 
   if (filteredData[0] === null) {
-    newTaskCommandSyntaxError(ctx);
+    await newTaskCommandSyntaxError(ctx);
     return;
   }
 
@@ -137,7 +137,7 @@ export const newTask = () => async (ctx: Context) => {
   }
 
   if (validationErrors.length) {
-    ctx.reply(validationErrors.join('\n'));
+    await ctx.reply(validationErrors.join('\n'));
     return;
   }
 
@@ -170,12 +170,12 @@ export const newTask = () => async (ctx: Context) => {
   const newTask = result.rows[0];
   if (!newTask) {
     debug(`Max tasks limit reached`);
-    ctx.reply(`Ви досягли ліміту завдань (${TASKS_LIMIT}).`);
+    await ctx.reply(`Ви досягли ліміту завдань (${TASKS_LIMIT}).`);
     return;
   }
 
   debug('Task added successfully');
-  ctx.reply(
+  await ctx.reply(
     'Нова таска створена!\n\n' +
       `${taskTitleReplacer(title)}\n\n` +
       `ТЗ: ${tz ? urlReplacer(tz) : 'відсутнє'}\n` +
@@ -194,5 +194,5 @@ export const newTask = () => async (ctx: Context) => {
     },
   );
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

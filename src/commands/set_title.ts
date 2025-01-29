@@ -15,7 +15,7 @@ export const setTaskTitle = () => async (ctx: Context) => {
   const match = message.match(updateTaskTitleRegex);
   if (!match) {
     debug('Invalid task title update command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат оновлення заголовку таски!\n/set_title номер_таски Новий заголовок',
     );
     return;
@@ -24,7 +24,7 @@ export const setTaskTitle = () => async (ctx: Context) => {
   const newTitle = match[3];
   if (newTitle.length > TITLE_LENGTH_LIMIT) {
     debug('Title too long');
-    ctx.reply(
+    await ctx.reply(
       `Назва таски дуже довга (${newTitle.length}). Обмеження за кількістю символів: ${TITLE_LENGTH_LIMIT}.`,
     );
     return;
@@ -39,7 +39,7 @@ export const setTaskTitle = () => async (ctx: Context) => {
 
   if (newTitle === selectedTask.title) {
     debug('Title not changed');
-    ctx.reply('Нова назва ідентична з попередньою');
+    await ctx.reply('Нова назва ідентична з попередньою');
     return;
   }
 
@@ -54,15 +54,15 @@ export const setTaskTitle = () => async (ctx: Context) => {
 
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task title updated successfully');
-  ctx.reply('Назву таски оновлено');
+  await ctx.reply('Назву таски оновлено');
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

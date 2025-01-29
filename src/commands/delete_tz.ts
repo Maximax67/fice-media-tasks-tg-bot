@@ -18,7 +18,7 @@ export const deleteTaskTz = () => async (ctx: Context) => {
   const match = message.match(deleteTzRegex);
   if (!match) {
     debug('Invalid delete tz command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди видалення тз!\n/delete_tz номер_таски',
     );
     return;
@@ -33,7 +33,7 @@ export const deleteTaskTz = () => async (ctx: Context) => {
 
   if (!selectedTask.tz) {
     debug('No tz');
-    ctx.reply('ТЗ відсутнє на цю таску');
+    await ctx.reply('ТЗ відсутнє на цю таску');
     return;
   }
 
@@ -47,18 +47,21 @@ export const deleteTaskTz = () => async (ctx: Context) => {
   const result = await client.query(query, [taskId]);
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task tz deleted successfully');
-  ctx.reply(`ТЗ видалене з таски: ${taskTitleReplacer(selectedTask.title)}`, {
-    link_preview_options: { is_disabled: true },
-    parse_mode: 'HTML',
-  });
+  await ctx.reply(
+    `ТЗ видалене з таски: ${taskTitleReplacer(selectedTask.title)}`,
+    {
+      link_preview_options: { is_disabled: true },
+      parse_mode: 'HTML',
+    },
+  );
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

@@ -18,16 +18,10 @@ export const handleDeleteTask = () => async (ctx: Context) => {
   const thread = (ctx.callbackQuery as any).message.message_thread_id || null;
   const taskId = parseInt(callbackData.split(':')[1], 10);
 
-  let query: string;
-  let params: number[];
-  if (thread) {
-    query = 'DELETE FROM tasks WHERE id = $1 AND chat_id = $2 AND thread = $3';
-    params = [taskId, chatId, thread];
-  } else {
-    query =
-      'DELETE FROM tasks WHERE id = $1 AND chat_id = $2 AND thread IS NULL';
-    params = [taskId, chatId];
-  }
+  const query = thread
+    ? 'DELETE FROM tasks WHERE id = $1 AND chat_id = $2 AND thread = $3'
+    : 'DELETE FROM tasks WHERE id = $1 AND chat_id = $2 AND thread IS NULL';
+  const params = thread ? [taskId, chatId, thread] : [taskId, chatId];
 
   const res = await client.query(query, params);
   if (!res.rowCount) {
@@ -40,5 +34,5 @@ export const handleDeleteTask = () => async (ctx: Context) => {
 
   debug(`Task deleted. Id: ${taskId}`);
   await ctx.editMessageText('Завдання видалено!');
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

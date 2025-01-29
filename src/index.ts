@@ -33,6 +33,7 @@ import {
   handleSetStatusTask,
   handleUpdateTasks,
   handleRemoveMarkup,
+  handleUpdatePicture,
 } from './handlers';
 import { development, production } from './core';
 import { BOT_TOKEN, ENVIRONMENT } from './config';
@@ -75,6 +76,7 @@ bot.command('motivation', motivation());
 
 bot.action(/^delete_task:(\d+)$/, handleDeleteTask());
 bot.action(/^update_tasks$/, handleUpdateTasks());
+bot.action(/^update_picture$/, handleUpdatePicture());
 bot.action(/^remove_markup$/, handleRemoveMarkup());
 bot.action(/^set_status:(\d+):(\S+)$/, handleSetStatusTask());
 

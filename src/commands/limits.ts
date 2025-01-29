@@ -6,5 +6,5 @@ const debug = createDebug('bot:limits');
 
 export const limitsCommandReply = () => async (ctx: Context) => {
   debug('Triggered "limits" command');
-  ctx.reply(LIMITS_MESSAGE, { parse_mode: 'HTML' });
+  await ctx.reply(LIMITS_MESSAGE, { parse_mode: 'HTML' });
 };

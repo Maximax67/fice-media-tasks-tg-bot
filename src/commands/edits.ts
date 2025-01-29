@@ -16,7 +16,7 @@ export const edits = () => async (ctx: Context) => {
   const tasks = await getTasksAndCommentsForChat(chatId, thread);
   if (tasks.length === 0) {
     debug('No tasks found');
-    ctx.reply('Немає тасок! Створіть нову командою /new_task');
+    await ctx.reply('Немає тасок! Створіть нову командою /new_task');
 
     return;
   }
@@ -26,13 +26,13 @@ export const edits = () => async (ctx: Context) => {
 
   for (const task of tasks) {
     if (task.status == TaskStatuses.EDITING) {
-      formattedTasks += '\n\n' + formatTask(task, counter++);
+      formattedTasks += '\n\n' + formatTask(task, counter++, false);
     }
   }
 
   if (counter === 0) {
     debug('No in process tasks found');
-    ctx.reply(
+    await ctx.reply(
       `Немає тасок зі статусом ${STATUS_ICONS[TaskStatuses.EDITING]} ${STATUS_NAMES[TaskStatuses.EDITING]}!`,
     );
 
@@ -42,16 +42,26 @@ export const edits = () => async (ctx: Context) => {
   const imageBuffer = await fetchImage();
   if (!imageBuffer) {
     debug('Fetch image failed');
-    ctx.reply(formattedTasks, {
+    await ctx.reply(formattedTasks, {
       parse_mode: 'HTML',
       link_preview_options: { is_disabled: true },
     });
     return;
   }
 
-  ctx.replyWithPhoto({ source: imageBuffer }, {
+  await ctx.replyWithPhoto({ source: imageBuffer }, {
     caption: formattedTasks,
     parse_mode: 'HTML',
     show_caption_above_media: true,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: '🔄 Нова картинка',
+            callback_data: 'update_picture',
+          },
+        ],
+      ],
+    },
   } as any);
 };

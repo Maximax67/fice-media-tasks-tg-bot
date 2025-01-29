@@ -21,7 +21,7 @@ export const setTaskStatus = () => async (ctx: Context) => {
   const match = message.match(setTaskStatusRegex);
   if (!match) {
     debug('Invalid update task status command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат зміни статусу таски!\n/set_status номер_таски',
     );
     return;
@@ -55,7 +55,7 @@ export const setTaskStatus = () => async (ctx: Context) => {
   ]);
 
   debug('Task added successfully');
-  ctx.reply(
+  await ctx.reply(
     `${taskTitleReplacer(selectedTask.title)}\n\nСтатус: ${STATUS_ICONS[selectedTask.status]} ${STATUS_NAMES[selectedTask.status]}`,
     {
       reply_markup: { inline_keyboard: keyboard },
@@ -67,5 +67,5 @@ export const setTaskStatus = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

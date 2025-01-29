@@ -30,7 +30,7 @@ export const deleteAllTasks = () => async (ctx: Context) => {
 
   if (!deletedTasksCount) {
     debug('Task list is empty');
-    ctx.reply('Наразі немає тасок!');
+    await ctx.reply('Наразі немає тасок!');
     return;
   }
 
@@ -40,7 +40,7 @@ export const deleteAllTasks = () => async (ctx: Context) => {
     debug(`${deletedTasksCount} tasks deleted`);
   }
 
-  ctx.reply(`Видалено всі завдання: ${deletedTasksCount}`);
+  await ctx.reply(`Видалено всі завдання: ${deletedTasksCount}`);
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

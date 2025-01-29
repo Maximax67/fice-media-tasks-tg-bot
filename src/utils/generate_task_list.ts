@@ -17,7 +17,11 @@ const taskListLegend =
   `• ${STATUS_ICONS[TaskStatuses.WAITING_FOR_PICTURE]} — ${STATUS_NAMES[TaskStatuses.WAITING_FOR_PICTURE]}\n` +
   `• ${STATUS_ICONS[TaskStatuses.WAITING_FOR_PUBLICATION]} — ${STATUS_NAMES[TaskStatuses.WAITING_FOR_PUBLICATION]}`;
 
-export function formatTask(task: Task, index: number): string {
+export function formatTask(
+  task: Task,
+  index: number,
+  includeResponsible = true,
+): string {
   const {
     title,
     deadline,
@@ -44,17 +48,19 @@ export function formatTask(task: Task, index: number): string {
     tzFormatted = '';
   }
 
-  const assignedPersonFormatted = assigned_person
-    ? formatAssignedPerson(assigned_person)
-    : 'не назначений';
-
   const titleFormatted = url
     ? `<a href="${url}">${escapedTitle}</a>${tzFormatted}`
     : escapedTitle + tzFormatted;
 
   let formattedTask =
     `${index + 1}) ${STATUS_ICONS[status]} ${titleFormatted}\n` +
-    `${escapedDeadline} | ${escapedDeadlinePost} | ${assignedPersonFormatted}`;
+    `${escapedDeadline} | ${escapedDeadlinePost}`;
+
+  if (includeResponsible) {
+    formattedTask += assigned_person
+      ? ' | ' + formatAssignedPerson(assigned_person)
+      : ' | не назначений';
+  }
 
   if (comments && comments.length > 0) {
     const formattedComments = comments
@@ -80,14 +86,14 @@ export function formatTaskMinimalistic(task: Task): string {
     : escapedTitle;
 
   return completed_at
-    ? `${formatDate(completed_at)} - ${titleFormatted}\n`
-    : `${STATUS_ICONS[status]} ${titleFormatted}\n`;
+    ? `${formatDate(completed_at)} - ${titleFormatted}`
+    : `${STATUS_ICONS[status]} ${titleFormatted}`;
 }
 
 export function generateTaskList(tasks: Task[]): string {
   return (
     '<b>===== Поточні таски =====</b>\n\n' +
-    tasks.map(formatTask).join('\n\n') +
+    tasks.map((task, index) => formatTask(task, index, true)).join('\n\n') +
     '\n\n' +
     taskListLegend
   );

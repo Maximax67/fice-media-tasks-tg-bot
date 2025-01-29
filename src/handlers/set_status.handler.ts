@@ -75,5 +75,5 @@ export const handleSetStatusTask = () => async (ctx: Context) => {
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

@@ -10,12 +10,12 @@ export async function getSelectedTaskComment(
   commentNumber: number,
 ): Promise<Comment | undefined> {
   if (taskNumber < 1) {
-    ctx.reply('Не існує таски з таким порядковим номером');
+    await ctx.reply('Не існує таски з таким порядковим номером');
     return;
   }
 
   if (commentNumber < 1) {
-    ctx.reply('Не існує коментаря до таски з таким порядковим номером');
+    await ctx.reply('Не існує коментаря до таски з таким порядковим номером');
     return;
   }
 
@@ -24,12 +24,12 @@ export async function getSelectedTaskComment(
   const tasks = await getTasksForChat(chatId, thread);
 
   if (!tasks.length) {
-    ctx.reply('Не створено жодної таски');
+    await ctx.reply('Не створено жодної таски');
     return;
   }
 
   if (taskNumber > tasks.length) {
-    ctx.reply('Не існує таски з таким порядковим номером');
+    await ctx.reply('Не існує таски з таким порядковим номером');
     return;
   }
 
@@ -45,12 +45,12 @@ export async function getSelectedTaskComment(
   const comments: Comment[] = commentsResult.rows;
 
   if (!comments.length) {
-    ctx.reply('Ця таска не містить жодного коментаря');
+    await ctx.reply('Ця таска не містить жодного коментаря');
     return;
   }
 
   if (commentNumber > comments.length) {
-    ctx.reply('Не існує коментаря до таски з таким порядковим номером');
+    await ctx.reply('Не існує коментаря до таски з таким порядковим номером');
     return;
   }
 

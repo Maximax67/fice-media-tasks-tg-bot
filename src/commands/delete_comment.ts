@@ -19,7 +19,7 @@ export const deleteTaskComment = () => async (ctx: Context) => {
 
   if (!match) {
     debug('Invalid task delete comment command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди видалення коментарію!\n/delete_comment номер_таски номер_коментаря',
     );
     return;
@@ -45,18 +45,21 @@ export const deleteTaskComment = () => async (ctx: Context) => {
 
   if (!result.rowCount) {
     debug('Comment not found');
-    ctx.reply('Коментар не знайдено. Можливо він вже видалений');
+    await ctx.reply('Коментар не знайдено. Можливо він вже видалений');
     return;
   }
 
   debug(`Comment deleted with id: ${commentId}`);
-  ctx.reply(`Видалено коментар: ${urlReplacer(selectedComment.comment_text)}`, {
-    link_preview_options: { is_disabled: true },
-    parse_mode: 'HTML',
-  });
+  await ctx.reply(
+    `Видалено коментар: ${urlReplacer(selectedComment.comment_text)}`,
+    {
+      link_preview_options: { is_disabled: true },
+      parse_mode: 'HTML',
+    },
+  );
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

@@ -20,7 +20,7 @@ export const setTaskTz = () => async (ctx: Context) => {
   const match = message.match(setTaskTzRegex);
   if (!match) {
     debug('Invalid set tz command format');
-    ctx.reply(
+    await ctx.reply(
       'Неправильний формат команди задання тз!\n/set_tz номер_таски тз текстом або посилання',
     );
     return;
@@ -29,7 +29,7 @@ export const setTaskTz = () => async (ctx: Context) => {
   const tz = match[3].trim();
   if (TZ_ALWAYS_URL && !URL_REGEX.test(tz)) {
     debug('TZ is not url.');
-    ctx.reply('ТЗ має бути у вигляді посилання.');
+    await ctx.reply('ТЗ має бути у вигляді посилання.');
     return;
   }
 
@@ -42,7 +42,7 @@ export const setTaskTz = () => async (ctx: Context) => {
 
   if (tz === selectedTask.tz) {
     debug('TZ not changed');
-    ctx.reply('Нове тз ідентичне з попереднім');
+    await ctx.reply('Нове тз ідентичне з попереднім');
     return;
   }
 
@@ -56,12 +56,12 @@ export const setTaskTz = () => async (ctx: Context) => {
   const result = await client.query(query, [tz, taskId]);
   if (!result.rowCount) {
     debug('Task not found');
-    ctx.reply('Таску не знайдено. Можливо вона вже видалена');
+    await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
   debug('Task tz set successfully');
-  ctx.reply(
+  await ctx.reply(
     `Задано нове тз для таски: ${taskTitleReplacer(selectedTask.title)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
@@ -69,5 +69,5 @@ export const setTaskTz = () => async (ctx: Context) => {
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || null;
 
-  autoupdateTaskList(chatId, thread);
+  await autoupdateTaskList(chatId, thread);
 };

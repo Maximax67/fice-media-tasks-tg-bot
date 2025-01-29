@@ -8,7 +8,7 @@ export async function getSelectedTask(
   taskNumber: number,
 ): Promise<Task | undefined> {
   if (taskNumber < 1) {
-    ctx.reply('Не існує таски з таким порядковим номером');
+    await ctx.reply('Не існує таски з таким порядковим номером');
     return;
   }
 
@@ -17,12 +17,12 @@ export async function getSelectedTask(
   const tasks = await getTasksForChat(chatId, thread);
 
   if (!tasks.length) {
-    ctx.reply('Не створено жодної таски');
+    await ctx.reply('Не створено жодної таски');
     return;
   }
 
   if (taskNumber > tasks.length) {
-    ctx.reply('Не існує таски з таким порядковим номером');
+    await ctx.reply('Не існує таски з таким порядковим номером');
     return;
   }
 

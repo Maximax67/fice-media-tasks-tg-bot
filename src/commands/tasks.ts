@@ -17,10 +17,10 @@ export const getTasks = () => async (ctx: Context) => {
   const tasks = await getTasksAndCommentsForChat(chatId, thread);
   if (tasks.length === 0) {
     debug('No tasks found');
-    ctx.reply(
+    await ctx.reply(
       'Немає тасок! Створіть нову командою /new_task',
       Markup.inlineKeyboard([
-        Markup.button.callback('Оновити', 'update_tasks'),
+        Markup.button.callback('🔄 Оновити', 'update_tasks'),
       ]),
     );
 
@@ -39,14 +39,14 @@ export const getTasks = () => async (ctx: Context) => {
     ? taskList + '\n\n' + additionalText
     : taskList;
 
-  ctx.reply(replyText, {
+  await ctx.reply(replyText, {
     parse_mode: 'HTML',
     link_preview_options: { is_disabled: true },
     reply_markup: {
       inline_keyboard: [
         [
           {
-            text: 'Оновити',
+            text: '🔄 Оновити',
             callback_data: 'update_tasks',
           },
         ],
