@@ -11,6 +11,7 @@ export * from './delete_tz';
 export * from './delete_url';
 export * from './edits';
 export * from './help';
+export * from './leaderboard';
 export * from './limits';
 export * from './motivation';
 export * from './new_task';

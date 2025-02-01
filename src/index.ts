@@ -13,6 +13,7 @@ import {
   deleteTaskTz,
   deleteTaskUrl,
   edits,
+  getLeaderboard,
   getStats,
   getTasks,
   helpCommandReply,
@@ -73,6 +74,7 @@ bot.command('edits', edits());
 bot.command('stats', getStats());
 bot.command('autoupdate', autoupdate());
 bot.command('motivation', motivation());
+bot.command('leaderboard', getLeaderboard());
 
 bot.action(/^delete_task:(\d+)$/, handleDeleteTask());
 bot.action(/^update_tasks$/, handleUpdateTasks());
