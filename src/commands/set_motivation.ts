@@ -22,9 +22,10 @@ export const setMotivation = () => async (ctx: Context) => {
     await client.query(query, [chatId, thread]);
 
   const keyboard: InlineKeyboardButton[][] = [];
-  const currentMotivation = result.rows.length
-    ? result.rows[0].motivation_type
-    : MotivationTypes.NONE;
+  const currentMotivation =
+    result.rows.length && result.rows[0].motivation_type
+      ? result.rows[0].motivation_type
+      : MotivationTypes.NONE;
 
   Object.values(MotivationTypes).forEach((motivationType) => {
     if (motivationType !== currentMotivation) {

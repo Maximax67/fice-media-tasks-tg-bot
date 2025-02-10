@@ -37,8 +37,8 @@ export const formatTask = (
   const escapedTitle = taskTitleReplacer(title, true);
   const escapedDeadline = deadline ? urlReplacer(deadline) : 'відсутній';
   const escapedDeadlinePost = post_deadline
-    ? urlReplacer(post_deadline)
-    : 'відсутній';
+    ? ' | ' + urlReplacer(post_deadline)
+    : '';
 
   let tzFormatted: string;
   if (tz) {
@@ -58,9 +58,7 @@ export const formatTask = (
     `${escapedDeadline} | ${escapedDeadlinePost}`;
 
   if (includeResponsible) {
-    formattedTask += responsible
-      ? ' | ' + formatResponsible(responsible)
-      : ' | не назначений';
+    formattedTask += responsible ? ' | ' + formatResponsible(responsible) : '';
   }
 
   if (comments && comments.length > 0) {
