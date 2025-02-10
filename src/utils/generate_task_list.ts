@@ -55,7 +55,8 @@ export const formatTask = (
 
   let formattedTask =
     `${index + 1}) ${escapeHtml(icon)} ${titleFormatted}\n` +
-    `${escapedDeadline} | ${escapedDeadlinePost}`;
+    escapedDeadline +
+    escapedDeadlinePost;
 
   if (includeResponsible) {
     formattedTask += responsible ? ' | ' + formatResponsible(responsible) : '';
