@@ -1,0 +1,11 @@
+import { fetchImage } from './fetch_image';
+import { retryOnException } from './retry_on_exception';
+
+export const fetchNatureImage = async (
+  retries: number = 3,
+): Promise<Buffer<ArrayBufferLike>> => {
+  return retryOnException(
+    async () => await fetchImage('https://picsum.photos/1500/1000'),
+    retries,
+  );
+};

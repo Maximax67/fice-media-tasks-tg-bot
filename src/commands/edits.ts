@@ -1,7 +1,11 @@
 import createDebug from 'debug';
-import { TaskStatuses } from '../enums';
-import { STATUS_ICONS, STATUS_NAMES } from '../constants';
-import { fetchImage, formatTask, getTasksAndCommentsForChat } from '../utils';
+import {
+  formatTask,
+  getMotivationImage,
+  getMotivationType,
+  getTasksAndCommentsForChat,
+} from '../utils';
+import { MotivationTypes } from '../enums';
 
 import type { Context } from 'telegraf';
 
@@ -11,7 +15,7 @@ export const edits = () => async (ctx: Context) => {
   debug('Triggered "edits" command');
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
 
   const tasks = await getTasksAndCommentsForChat(chatId, thread);
   if (tasks.length === 0) {
@@ -25,21 +29,27 @@ export const edits = () => async (ctx: Context) => {
   let counter = 0;
 
   for (const task of tasks) {
-    if (task.status == TaskStatuses.EDITING) {
+    if (task.url) {
       formattedTasks += '\n\n' + formatTask(task, counter++, false);
     }
   }
 
   if (counter === 0) {
     debug('No in process tasks found');
-    await ctx.reply(
-      `Немає тасок зі статусом ${STATUS_ICONS[TaskStatuses.EDITING]} ${STATUS_NAMES[TaskStatuses.EDITING]}!`,
-    );
-
+    await ctx.reply(`Немає тасок зі встановленими посиланнями!`);
     return;
   }
 
-  const imageBuffer = await fetchImage();
+  const motivationType = await getMotivationType(chatId, thread);
+  if (motivationType === MotivationTypes.NONE) {
+    await ctx.reply(formattedTasks, {
+      parse_mode: 'HTML',
+      link_preview_options: { is_disabled: true },
+    });
+    return;
+  }
+
+  const imageBuffer = await getMotivationImage(motivationType);
   if (!imageBuffer) {
     debug('Fetch image failed');
     await ctx.reply(formattedTasks, {
@@ -58,7 +68,7 @@ export const edits = () => async (ctx: Context) => {
         [
           {
             text: '🔄 Нова картинка',
-            callback_data: 'update_picture',
+            callback_data: `update_picture:${motivationType}`,
           },
         ],
       ],

@@ -1,6 +1,13 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { autoupdateTaskList, getTasksForChat, urlReplacer } from '../utils';
+import { ChangeStatusEvents } from '../enums';
+import {
+  autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
+  getTasksForChat,
+  urlReplacer,
+} from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -30,7 +37,7 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
   }
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
   const tasks = await getTasksForChat(chatId, thread);
 
   if (!tasks.length) {
@@ -60,9 +67,16 @@ export const deleteAllTaskComments = () => async (ctx: Context) => {
     return;
   }
 
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    ChangeStatusEvents.DELETE_ALL_COMMENTS,
+  );
+
   debug(`Deleted ${result.rowCount} comment(s) for task id: ${taskId}`);
   await ctx.reply(
-    `Видалено коментарі (${result.rowCount}) до таски: ${urlReplacer(selectedTask.title)}`,
+    `Видалено коментарі (${result.rowCount}) до таски: ${urlReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 

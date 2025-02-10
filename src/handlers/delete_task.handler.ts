@@ -1,7 +1,8 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import type { Context } from 'telegraf';
 import { autoupdateTaskList } from '../utils';
+
+import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:handle_delete_task');
 
@@ -15,15 +16,19 @@ export const handleDeleteTask = () => async (ctx: Context) => {
   }
 
   const chatId = ctx.chat!.id;
-  const thread = (ctx.callbackQuery as any).message.message_thread_id || null;
+  const thread = (ctx.callbackQuery as any).message.message_thread_id || 0;
   const taskId = parseInt(callbackData.split(':')[1], 10);
 
-  const query = thread
-    ? 'DELETE FROM tasks WHERE id = $1 AND chat_id = $2 AND thread = $3'
-    : 'DELETE FROM tasks WHERE id = $1 AND chat_id = $2 AND thread IS NULL';
-  const params = thread ? [taskId, chatId, thread] : [taskId, chatId];
+  const query = `
+    DELETE FROM tasks
+    USING chats
+    WHERE tasks.chat_id = chats.id 
+    AND tasks.id = $1 
+    AND chats.chat_id = $2 
+    AND chats.thread = $3
+  `;
+  const res = await client.query(query, [taskId, chatId, thread]);
 
-  const res = await client.query(query, params);
   if (!res.rowCount) {
     debug('Task not found.');
     await ctx.editMessageText(

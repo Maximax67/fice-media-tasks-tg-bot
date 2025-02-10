@@ -1,10 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { TaskStatuses } from '../enums';
-import { STATUS_ICONS, STATUS_NAMES } from '../constants';
+import { ChangeStatusEvents } from '../enums';
 import { COMPLETE_TASK_URL_LENGTH_LIMIT } from '../config';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
@@ -50,28 +51,31 @@ export const setTaskUrl = () => async (ctx: Context) => {
   }
 
   const taskId = selectedTask.id;
-  const query = `
-    UPDATE tasks
-    SET url = $1, status = $2
-    WHERE id = $3
-  `;
-
-  const result = await client.query(query, [url, TaskStatuses.EDITING, taskId]);
+  const query = 'UPDATE tasks SET url = $1 WHERE id = $2';
+  const result = await client.query(query, [url, taskId]);
   if (!result.rowCount) {
     debug('Task not found');
     await ctx.reply('Таску не знайдено. Можливо вона вже видалена');
     return;
   }
 
-  debug('Task url set successfully');
-  await ctx.reply(
-    `Задано нове посилання на виконану таску: ${taskTitleReplacer(selectedTask.title)}\n\n` +
-      `Статус змінено на: ${STATUS_ICONS.EDITING} ${STATUS_NAMES.EDITING}`,
-    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    selectedTask.url
+      ? ChangeStatusEvents.CHANGE_URL
+      : ChangeStatusEvents.SET_URL,
   );
 
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  debug('Task url set successfully');
+  await ctx.reply(
+    `Задано нове посилання на таску: ${taskTitleReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 
   await autoupdateTaskList(chatId, thread);
 };

@@ -1,7 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { ChangeStatusEvents } from '../enums';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
@@ -31,8 +34,8 @@ export const deleteTaskResponsible = () => async (ctx: Context) => {
     return;
   }
 
-  if (!selectedTask.assigned_person) {
-    debug('No assigned person');
+  if (!selectedTask.responsible) {
+    debug('There is no responsible for this task');
     await ctx.reply('Відповідальний не назначений на цю таску');
     return;
   }
@@ -40,7 +43,7 @@ export const deleteTaskResponsible = () => async (ctx: Context) => {
   const taskId = selectedTask.id;
   const query = `
     UPDATE tasks
-    SET assigned_person = NULL
+    SET responsible = NULL
     WHERE id = $1
   `;
 
@@ -51,14 +54,20 @@ export const deleteTaskResponsible = () => async (ctx: Context) => {
     return;
   }
 
-  debug('Task assigned person deleted successfully');
-  await ctx.reply(
-    `Відповідальний видалений з таски: ${taskTitleReplacer(selectedTask.title)}`,
-    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    ChangeStatusEvents.DELETE_RESPONSIBLE,
   );
 
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  debug('Task responsible deleted successfully');
+  await ctx.reply(
+    `Відповідальний видалений з таски: ${taskTitleReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 
   await autoupdateTaskList(chatId, thread);
 };

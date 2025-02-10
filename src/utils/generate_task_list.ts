@@ -1,35 +1,36 @@
-import { TaskStatuses } from '../enums';
-import { STATUS_ICONS, STATUS_NAMES, URL_REGEX } from '../constants';
-
 import { formatDateTime } from './format_datetime';
 import { urlReplacer } from './url_replacer';
 
+import { escapeHtml } from './escape_html';
 import { taskTitleReplacer } from './task_title_replacer';
-import { formatAssignedPerson } from './format_assigned_person';
-import type { Task } from '../interfaces';
+import { formatResponsible } from './format_responsible';
 import { formatDate } from './format_date';
+import { URL_REGEX } from '../constants';
 
-const taskListLegend =
-  '<b>Легенда</b>:\n' +
-  `• ${STATUS_ICONS[TaskStatuses.NEW]} — ${STATUS_NAMES[TaskStatuses.NEW]}\n` +
-  `• ${STATUS_ICONS[TaskStatuses.IN_PROCESS]} — ${STATUS_NAMES[TaskStatuses.IN_PROCESS]}\n` +
-  `• ${STATUS_ICONS[TaskStatuses.EDITING]} — ${STATUS_NAMES[TaskStatuses.EDITING]}\n` +
-  `• ${STATUS_ICONS[TaskStatuses.WAITING_FOR_PICTURE]} — ${STATUS_NAMES[TaskStatuses.WAITING_FOR_PICTURE]}\n` +
-  `• ${STATUS_ICONS[TaskStatuses.WAITING_FOR_PUBLICATION]} — ${STATUS_NAMES[TaskStatuses.WAITING_FOR_PUBLICATION]}`;
+import type { ChatTaskStatus, Task } from '../interfaces';
 
-export function formatTask(
+const generateTaskLegend = (statuses: ChatTaskStatus[]): string => {
+  let legend = '<b>Легенда:</b>';
+  for (const status of statuses) {
+    legend += `\n• ${escapeHtml(status.icon)} — ${escapeHtml(status.title)}`;
+  }
+
+  return legend;
+};
+
+export const formatTask = (
   task: Task,
   index: number,
   includeResponsible = true,
-): string {
+): string => {
   const {
     title,
     deadline,
     post_deadline,
     tz,
     url,
-    assigned_person,
-    status,
+    responsible,
+    status: { icon },
     comments,
   } = task;
 
@@ -53,12 +54,12 @@ export function formatTask(
     : escapedTitle + tzFormatted;
 
   let formattedTask =
-    `${index + 1}) ${STATUS_ICONS[status]} ${titleFormatted}\n` +
+    `${index + 1}) ${escapeHtml(icon)} ${titleFormatted}\n` +
     `${escapedDeadline} | ${escapedDeadlinePost}`;
 
   if (includeResponsible) {
-    formattedTask += assigned_person
-      ? ' | ' + formatAssignedPerson(assigned_person)
+    formattedTask += responsible
+      ? ' | ' + formatResponsible(responsible)
       : ' | не назначений';
   }
 
@@ -76,10 +77,16 @@ export function formatTask(
   }
 
   return formattedTask;
-}
+};
 
-export function formatTaskMinimalistic(task: Task): string {
-  const { title, url, status, completed_at } = task;
+export const formatTaskMinimalistic = (task: Task): string => {
+  const {
+    title,
+    url,
+    status: { icon },
+    completed_at,
+  } = task;
+
   const escapedTitle = taskTitleReplacer(title, true);
   const titleFormatted = url
     ? `<a href="${url}">${escapedTitle}</a>`
@@ -87,14 +94,19 @@ export function formatTaskMinimalistic(task: Task): string {
 
   return completed_at
     ? `${formatDate(completed_at)} - ${titleFormatted}`
-    : `${STATUS_ICONS[status]} ${titleFormatted}`;
-}
+    : `${escapeHtml(icon)} ${titleFormatted}`;
+};
 
-export function generateTaskList(tasks: Task[]): string {
+export const generateTaskList = (
+  tasks: Task[],
+  statuses: ChatTaskStatus[],
+): string => {
+  const legend = generateTaskLegend(statuses);
+  const tasksFormatted = tasks
+    .map((task, index) => formatTask(task, index, true))
+    .join('\n\n');
+
   return (
-    '<b>===== Поточні таски =====</b>\n\n' +
-    tasks.map((task, index) => formatTask(task, index, true)).join('\n\n') +
-    '\n\n' +
-    taskListLegend
+    '<b>===== Поточні таски =====</b>\n\n' + tasksFormatted + '\n\n' + legend
   );
-}
+};

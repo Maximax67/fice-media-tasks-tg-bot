@@ -1,7 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { ChangeStatusEvents } from '../enums';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
@@ -61,14 +64,23 @@ export const setTaskPostDeadline = () => async (ctx: Context) => {
     return;
   }
 
-  debug('Task url set successfully');
-  await ctx.reply(
-    `Новий дедлайн посту встановлено на таску: ${taskTitleReplacer(selectedTask.title)}`,
-    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    selectedTask.post_deadline
+      ? ChangeStatusEvents.CHANGE_POST_DEADLINE
+      : ChangeStatusEvents.SET_POST_DEADLINE,
   );
 
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  debug('Task url set successfully');
+  await ctx.reply(
+    `Новий дедлайн посту встановлено на таску: ${taskTitleReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 
   await autoupdateTaskList(chatId, thread);
 };

@@ -2,11 +2,14 @@ import createDebug from 'debug';
 import { client } from '../core';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
 
 import type { Context } from 'telegraf';
+import { ChangeStatusEvents } from '../enums';
 
 const debug = createDebug('bot:delete_url');
 const deleteUrlRegex = /^(\/\S+)\s+(\d+)$/;
@@ -51,17 +54,23 @@ export const deleteTaskUrl = () => async (ctx: Context) => {
     return;
   }
 
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    ChangeStatusEvents.DELETE_TZ,
+  );
+
   debug('Task url deleted successfully');
   await ctx.reply(
-    `Посилання видалене з таски: ${taskTitleReplacer(selectedTask.title)}`,
+    `Посилання видалене з таски: ${taskTitleReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
     {
       link_preview_options: { is_disabled: true },
       parse_mode: 'HTML',
     },
   );
-
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
 
   await autoupdateTaskList(chatId, thread);
 };

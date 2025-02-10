@@ -2,9 +2,12 @@ import createDebug from 'debug';
 import { client } from '../core';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
+import { ChangeStatusEvents } from '../enums';
 import { TZ_ALWAYS_URL } from '../config';
 import { URL_REGEX } from '../constants';
 
@@ -60,14 +63,23 @@ export const setTaskTz = () => async (ctx: Context) => {
     return;
   }
 
-  debug('Task tz set successfully');
-  await ctx.reply(
-    `Задано нове тз для таски: ${taskTitleReplacer(selectedTask.title)}`,
-    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    selectedTask.tz
+      ? ChangeStatusEvents.CHANGE_TZ
+      : ChangeStatusEvents.SET_TZ,
   );
 
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  debug('Task tz set successfully');
+  await ctx.reply(
+    `Задано нове тз для таски: ${taskTitleReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 
   await autoupdateTaskList(chatId, thread);
 };

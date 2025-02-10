@@ -1,4 +1,4 @@
-import { getTasksForChat } from '../utils';
+import { getTasksForChat } from './get_tasks';
 
 import type { Context } from 'telegraf';
 import type { Task } from '../interfaces';
@@ -13,7 +13,7 @@ export async function getSelectedTask(
   }
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
   const tasks = await getTasksForChat(chatId, thread);
 
   if (!tasks.length) {

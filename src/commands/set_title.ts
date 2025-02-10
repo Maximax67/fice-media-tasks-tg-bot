@@ -1,7 +1,13 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import { TITLE_LENGTH_LIMIT } from '../config';
-import { autoupdateTaskList, getSelectedTask } from '../utils';
+import { ChangeStatusEvents } from '../enums';
+import {
+  autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
+  getSelectedTask,
+} from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -58,11 +64,21 @@ export const setTaskTitle = () => async (ctx: Context) => {
     return;
   }
 
-  debug('Task title updated successfully');
-  await ctx.reply('Назву таски оновлено');
-
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
+
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    ChangeStatusEvents.CHANGE_TITLE,
+  );
+
+  debug('Task title updated successfully');
+  await ctx.reply(
+    `Назву таски оновлено!${formatChangeStatusEventMessage(newStatus)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 
   await autoupdateTaskList(chatId, thread);
 };

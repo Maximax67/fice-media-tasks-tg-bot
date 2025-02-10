@@ -34,7 +34,7 @@ export const deleteTask = () => async (ctx: Context) => {
 
   const taskId = selectedTask.id;
   const result = await client.query(
-    'UPDATE tasks SET completed_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING title',
+    'UPDATE tasks SET completed_at = CURRENT_TIMESTAMP, status_id = NULL WHERE id = $1 RETURNING title',
     [taskId],
   );
   if (!result.rowCount) {
@@ -52,7 +52,7 @@ export const deleteTask = () => async (ctx: Context) => {
   });
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
 
   await autoupdateTaskList(chatId, thread);
 };

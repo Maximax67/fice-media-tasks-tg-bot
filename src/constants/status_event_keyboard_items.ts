@@ -1,0 +1,1 @@
+export const STATUS_EVENT_KEYBOARD_ITEMS = 5;

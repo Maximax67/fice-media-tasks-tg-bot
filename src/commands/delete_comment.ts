@@ -1,7 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { ChangeStatusEvents } from '../enums';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTaskComment,
   urlReplacer,
 } from '../utils';
@@ -27,18 +30,20 @@ export const deleteTaskComment = () => async (ctx: Context) => {
 
   const taskNumber = parseInt(match[2], 10);
   const commentNumber = parseInt(match[3], 10);
-  const selectedComment = await getSelectedTaskComment(
+  const selectedTaskComment = await getSelectedTaskComment(
     ctx,
     taskNumber,
     commentNumber,
   );
 
-  if (!selectedComment) {
+  if (!selectedTaskComment) {
     debug('Selected comment not exists');
     return;
   }
 
-  const commentId = selectedComment.id;
+  const { comment, taskId } = selectedTaskComment;
+
+  const commentId = comment.id;
   const result = await client.query('DELETE FROM comments WHERE id = $1', [
     commentId,
   ]);
@@ -49,17 +54,24 @@ export const deleteTaskComment = () => async (ctx: Context) => {
     return;
   }
 
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    ChangeStatusEvents.DELETE_COMMENT,
+  );
+
   debug(`Comment deleted with id: ${commentId}`);
   await ctx.reply(
-    `Видалено коментар: ${urlReplacer(selectedComment.comment_text)}`,
+    `Видалено коментар: ${urlReplacer(comment.comment_text)}${formatChangeStatusEventMessage(newStatus)}`,
     {
       link_preview_options: { is_disabled: true },
       parse_mode: 'HTML',
     },
   );
-
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
 
   await autoupdateTaskList(chatId, thread);
 };

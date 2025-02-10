@@ -1,7 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { ChangeStatusEvents } from '../enums';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   formatDateTime,
   getTasksForChat,
   taskTitleReplacer,
@@ -38,7 +41,7 @@ export const addComment = () => async (ctx: Context) => {
   }
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
   const taskNumber = parseInt(match[2], 10);
   const tasks = await getTasksForChat(chatId, thread);
 
@@ -82,6 +85,13 @@ export const addComment = () => async (ctx: Context) => {
     return;
   }
 
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    ChangeStatusEvents.ADD_COMMENT,
+  );
+
   const formattedTitle = taskTitleReplacer(selectedTask.title);
   const formattedComment = urlReplacer(commentText);
   const formattedDatetime = formatDateTime(
@@ -91,7 +101,7 @@ export const addComment = () => async (ctx: Context) => {
 
   debug(`Comment added with id: ${newComment.id}`);
   await ctx.reply(
-    `Додано коментар до таски "${formattedTitle}": ${formattedComment}\n\n<i>Час додавання: ${formattedDatetime}</i>`,
+    `Додано коментар до таски "${formattedTitle}": ${formattedComment}\n\n<i>Час додавання: ${formattedDatetime}</i>${formatChangeStatusEventMessage(newStatus)}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 

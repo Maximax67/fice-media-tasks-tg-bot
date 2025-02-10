@@ -1,8 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { TaskStatuses } from '../enums';
 import { autoupdateTaskList, taskTitleReplacer } from '../utils';
-import { STATUS_ICONS, STATUS_NAMES } from '../constants';
 
 import type { QueryResult } from 'pg';
 import type { Context } from 'telegraf';
@@ -10,6 +8,11 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:handle_set_status');
 
 interface ReturnQueryWithTitle {
+  title: string;
+}
+
+interface TaskStatusIconWithTitle {
+  icon: string;
   title: string;
 }
 
@@ -24,36 +27,40 @@ export const handleSetStatusTask = () => async (ctx: Context) => {
 
   const splittedData = callbackData.split(':');
   const taskId = parseInt(splittedData[1], 10);
-  const status = splittedData[2];
+  const statusId = parseInt(splittedData[2], 10);
 
-  if (!(status in TaskStatuses)) {
-    debug(`Invalid task status: ${status}`);
-    ctx.editMessageText('Invalid task status');
+  const chatId = ctx.chat!.id;
+  const thread = (ctx.callbackQuery as any).message.message_thread_id || 0;
+
+  const getStatusQuery = `
+    SELECT cts.icon, cts.title
+    FROM chat_task_statuses cts
+    JOIN chats c ON cts.chat_id = c.id
+    WHERE cts.id = $1 AND c.chat_id = $2 AND c.thread = $3
+  `;
+  const getStatusResult: QueryResult<TaskStatusIconWithTitle> =
+    await client.query(getStatusQuery, [statusId, chatId, thread]);
+
+  const getStatusRows = getStatusResult.rows;
+  if (!getStatusRows.length) {
+    debug(`Invalid task status: ${statusId}`);
+    ctx.editMessageText('Не правильний статус таски');
     return;
   }
 
-  const chatId = ctx.chat!.id;
-  const thread = (ctx.callbackQuery as any).message.message_thread_id || null;
+  const { icon, title } = getStatusRows[0];
 
-  let query: string;
-  let params: Array<string | number>;
-  if (thread) {
-    query = `
-      UPDATE tasks
-      SET status = $1
-      WHERE id = $2 AND chat_id = $3 AND thread = $4
-      RETURNING title
-    `;
-    params = [status, taskId, chatId, thread];
-  } else {
-    query = query = `
-      UPDATE tasks
-      SET status = $1
-      WHERE id = $2 AND chat_id = $3 AND thread IS NULL
-      RETURNING title
-    `;
-    params = [status, taskId, chatId];
-  }
+  const query = `
+    UPDATE tasks
+    SET status_id = $1
+    FROM chats c
+    WHERE tasks.chat_id = c.id
+    AND tasks.id = $2
+    AND c.chat_id = $3
+    AND c.thread = $4
+    RETURNING tasks.title
+  `;
+  const params = [statusId, taskId, chatId, thread];
 
   const res: QueryResult<ReturnQueryWithTitle> = await client.query(
     query,
@@ -65,13 +72,10 @@ export const handleSetStatusTask = () => async (ctx: Context) => {
     return;
   }
 
-  const title = res.rows[0].title;
-  const statusName = STATUS_NAMES[status as TaskStatuses];
-  const statusIcon = STATUS_ICONS[status as TaskStatuses];
-
-  debug(`Status changed to: ${statusName}`);
+  const taskTitle = res.rows[0].title;
+  debug(`Status changed to: ${title}`);
   ctx.editMessageText(
-    `${taskTitleReplacer(title)}\n\nСтатус: ${statusIcon} ${statusName}`,
+    `${taskTitleReplacer(taskTitle)}\n\nСтатус: ${icon} ${title}`,
     { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
   );
 

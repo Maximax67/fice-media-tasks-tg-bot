@@ -2,7 +2,8 @@ import { client } from '../core';
 import { BOT_TOKEN } from '../config';
 import { formatDateTime } from './format_datetime';
 import { generateTaskList } from './generate_task_list';
-import { getAdditionalText } from './get_additional_text';
+import { getChatLinksFormatted } from './get_chat_links_formatted';
+import { getChatTaskStatuses } from './get_chat_task_statuses';
 import { getTasksAndCommentsForChat } from './get_tasks_and_comments';
 
 import { Telegram, TelegramError } from 'telegraf';
@@ -23,23 +24,20 @@ const editMessageParams: ExtraEditMessageText = {
   },
 };
 
-export const autoupdateTaskList = async (
-  chatId: number,
-  thread: number | null,
-) => {
-  const query = thread
-    ? 'SELECT message_id FROM autoupdate_messages WHERE chat_id = $1 AND thread = $2'
-    : 'SELECT message_id FROM autoupdate_messages WHERE chat_id = $1 AND thread IS NULL';
-  const params = thread ? [chatId, thread] : [chatId];
-  const result = await client.query(query, params);
+export const autoupdateTaskList = async (chatId: number, thread: number) => {
+  const query =
+    'SELECT autoupdate_message_id FROM chats WHERE chat_id = $1 AND thread = $2';
+  const result = await client.query(query, [chatId, thread]);
   const rows = result.rows;
   if (!rows.length) {
     return;
   }
 
-  const messageId: number = rows[0].message_id;
+  const messageId: number = rows[0].autoupdate_message_id;
 
   const tasks = await getTasksAndCommentsForChat(chatId, thread);
+  const chatTaskStatuses = await getChatTaskStatuses(chatId, thread);
+  const chatLinks = await getChatLinksFormatted(chatId, thread);
   const formattedDatetime = formatDateTime(new Date(), true);
   const updateMessage = `<i>Оновлено: ${formattedDatetime}</i>`;
 
@@ -47,11 +45,16 @@ export const autoupdateTaskList = async (
 
   if (tasks.length === 0) {
     try {
+      const noTasksMessage = 'Немає тасок! Створіть нову командою /new_task';
+      const messageWithLinks = chatLinks
+        ? noTasksMessage + '\n\n' + chatLinks
+        : noTasksMessage;
+
       await bot.editMessageText(
         chatId,
         messageId,
         undefined,
-        'Немає тасок! Створіть нову командою /new_task\n' + updateMessage,
+        messageWithLinks + '\n\n' + updateMessage,
         editMessageParams,
       );
     } catch (e: unknown) {
@@ -62,14 +65,12 @@ export const autoupdateTaskList = async (
     return;
   }
 
-  const additionalText = getAdditionalText(chatId, thread);
-
   try {
     await bot.editMessageText(
       chatId,
       messageId,
       undefined,
-      `${generateTaskList(tasks)}${additionalText ? '\n\n' + additionalText : ''}\n\n${updateMessage}`,
+      `${generateTaskList(tasks, chatTaskStatuses)}${chatLinks ? '\n\n' + chatLinks : ''}\n\n${updateMessage}`,
       editMessageParams,
     );
   } catch (e: unknown) {

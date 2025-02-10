@@ -5,7 +5,7 @@ import type { Context } from 'telegraf';
 import { client } from '../core';
 import {
   autoupdateTaskList,
-  formatAssignedPerson,
+  formatResponsible,
   taskTitleReplacer,
   urlReplacer,
 } from '../utils';
@@ -18,8 +18,8 @@ import {
   TZ_ALWAYS_URL,
   TASKS_LIMIT,
 } from '../config';
+import { ChangeStatusEvents } from '../enums';
 import { URL_REGEX, URL_REGEX_REPLACER } from '../constants';
-import { TaskStatuses } from '../enums';
 
 const debug = createDebug('bot:new_task');
 
@@ -40,7 +40,7 @@ export const newTask = () => async (ctx: Context) => {
   debug('Triggereыd "new_task" command');
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
   const message: string = (ctx.message as any).text;
 
   const spaceIndex = message.indexOf(' ');
@@ -141,35 +141,60 @@ export const newTask = () => async (ctx: Context) => {
     return;
   }
 
+  const getTaskStatusQuery = `
+    SELECT cts.id, cts.chat_id
+    FROM chat_task_statuses cts
+    JOIN chat_status_change_events ctce ON cts.id = ctce.status_id
+    JOIN chats c ON cts.chat_id = c.id
+    WHERE c.chat_id = $1 AND c.thread = $2 AND ctce.event = $3
+    LIMIT 1
+  `;
+
+  const statusResult = await client.query(getTaskStatusQuery, [
+    chatId,
+    thread,
+    ChangeStatusEvents.NEW,
+  ]);
+  const statusRows = statusResult.rows;
+
+  if (!statusRows.length) {
+    debug('Defaut new task status not set');
+    await ctx.reply(
+      'Статус за замовчуванням під нові таски не встановлено! Створіть новий статус /add_status та встановіть його за замовчування для нових тасок командою /set_change_status_event',
+    );
+    return;
+  }
+
+  const statusRow = statusRows[0];
+  const statusId = statusRow.id;
+  const chatIdRecord = statusRow.chat_id;
   const query = `
     WITH task_count AS (
       SELECT COUNT(*) AS count
       FROM tasks
       WHERE chat_id = $1
     )
-    INSERT INTO tasks (chat_id, thread, title, tz, deadline, post_deadline, assigned_person, status)
-    SELECT $1, $2, $3, $4, $5, $6, $7, $8
+    INSERT INTO tasks (chat_id, title, tz, deadline, post_deadline, responsible, status_id)
+    SELECT $1, $2, $3, $4, $5, $6, $7
     FROM task_count
-    WHERE count < $9
-    RETURNING id;
+    WHERE count < $8
+    RETURNING id
   `;
 
-  const taskStatus = responsible ? TaskStatuses.IN_PROCESS : TaskStatuses.NEW;
   const result: QueryResult<ReturnQueryWithId> = await client.query(query, [
-    chatId,
-    thread,
+    chatIdRecord,
     title,
     tz,
     deadline,
     postDeadline,
     responsible,
-    taskStatus,
+    statusId,
     TASKS_LIMIT,
   ]);
 
   const newTask = result.rows[0];
   if (!newTask) {
-    debug(`Max tasks limit reached`);
+    debug('Max tasks limit reached');
     await ctx.reply(`Ви досягли ліміту завдань (${TASKS_LIMIT}).`);
     return;
   }
@@ -181,7 +206,7 @@ export const newTask = () => async (ctx: Context) => {
       `ТЗ: ${tz ? urlReplacer(tz) : 'відсутнє'}\n` +
       `Дедлайн: ${deadline ? urlReplacer(deadline) : 'відсутній'}\n` +
       `Дедлайн посту: ${postDeadline ? urlReplacer(postDeadline) : 'відсутній'}\n` +
-      `Відповідальний: ${responsible ? formatAssignedPerson(responsible) : 'не назначений'}`,
+      `Відповідальний: ${responsible ? formatResponsible(responsible) : 'не назначений'}`,
     {
       reply_markup: {
         inline_keyboard: [

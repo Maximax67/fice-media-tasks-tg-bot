@@ -1,8 +1,9 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import type { Context } from 'telegraf';
 import { Task } from '../interfaces';
-import { formatAssignedPerson, formatTaskMinimalistic } from '../utils';
+import { formatResponsible, formatTaskMinimalistic } from '../utils';
+
+import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:stats');
 const statsRegex = /^(\/\S+)\s+(.+)$/;
@@ -21,20 +22,14 @@ export const getStats = () => async (ctx: Context) => {
 
   const responsible = match[2];
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
 
-  const query = thread
-    ? `
-    SELECT * FROM tasks
-    WHERE chat_id = $1 AND thread = $2 AND assigned_person = $3
-  `
-    : `
-    SELECT * FROM tasks
-    WHERE chat_id = $1 AND thread IS NULL AND assigned_person = $2
+  const query = `
+    SELECT t.* FROM tasks t
+    JOIN chats c ON t.chat_id = c.id
+    WHERE c.chat_id = $1 AND c.thread = $2 AND t.responsible = $3
   `;
-
-  const params = thread ? [chatId, thread, responsible] : [chatId, responsible];
-  const result = await client.query(query, params);
+  const result = await client.query(query, [chatId, thread, responsible]);
   const tasks: Task[] = result.rows;
 
   if (!tasks.length) {
@@ -55,7 +50,7 @@ export const getStats = () => async (ctx: Context) => {
   }
 
   let statsMessage =
-    `== Статистика ${formatAssignedPerson(responsible)} ==\n\n` +
+    `== Статистика ${formatResponsible(responsible)} ==\n\n` +
     `Виконано завдань: <b>${completedTasks.length}</b>\n` +
     `Поточних завдань: <b>${inProgressTasks.length}</b>\n\n`;
 

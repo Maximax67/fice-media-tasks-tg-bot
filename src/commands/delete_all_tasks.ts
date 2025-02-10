@@ -10,22 +10,19 @@ export const deleteAllTasks = () => async (ctx: Context) => {
   debug('Triggered "delete_all_tasks" command');
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
 
-  const query = thread
-    ? `
+  const query = `
     UPDATE tasks
-    SET completed_at = CURRENT_TIMESTAMP
-    WHERE chat_id = $1 AND thread = $2 AND completed_at IS NULL
-  `
-    : `
-    UPDATE tasks
-    SET completed_at = CURRENT_TIMESTAMP
-    WHERE chat_id = $1 AND thread IS NULL AND completed_at IS NULL
+    SET completed_at = CURRENT_TIMESTAMP, status_id = NULL
+    FROM chats c
+    WHERE tasks.chat_id = c.id
+    AND c.chat_id = $1
+    AND c.thread = $2
+    AND tasks.completed_at IS NULL
   `;
 
-  const params = thread ? [chatId, thread] : [chatId];
-  const res = await client.query(query, params);
+  const res = await client.query(query, [chatId, thread]);
   const deletedTasksCount = res.rowCount;
 
   if (!deletedTasksCount) {

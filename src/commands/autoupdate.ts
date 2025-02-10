@@ -1,51 +1,51 @@
 import createDebug from 'debug';
 import { client } from '../core';
+
 import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:autoupdate');
-const autoupdateRegex =
-  /^(\/\S+)\s+(https?:\/\/t\.me\/c\/(\d+)\/(\d+)(?:\/(\d+))?)$/;
 
 export const autoupdate = () => async (ctx: Context) => {
   debug('Triggered "autoupdate" command');
 
-  const message: string = (ctx.message as any).text.trim();
-  const match = message.match(autoupdateRegex);
-  if (!match) {
+  const replyToMessage = (ctx.message as any).reply_to_message;
+  if (!replyToMessage) {
     debug('Invalid autoupdate command format');
     await ctx.reply(
-      'Неправильний формат команди встановлення автоматичного оновлення списку завдань!\n/autoupdate посилання на повідомлення в телеграм зі списком тасок',
+      'Неправильний формат команди встановлення автоматичного оновлення списку завдань!\n/autoupdate з реплаєм на повідомленя зі списком завдань',
     );
     return;
   }
 
   const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  const thread = ctx.message!.message_thread_id || 0;
 
-  const urlChatId = parseInt(match[3], 10);
-  const urlThread = match.length === 6 ? parseInt(match[4], 10) : null;
-  const messageId = parseInt(match[match.length - 1], 10);
+  const replyChatId: number = replyToMessage.chat.id;
+  const replyThread: number = replyToMessage.message_thread_id || 0;
+  const messageId: number = replyToMessage.message_id;
+  const isBot: boolean = replyToMessage.from.is_bot;
 
-  if (
-    chatId.toString() !== '-100' + urlChatId.toString() ||
-    thread !== urlThread
-  ) {
-    debug('Provided url for message in another chat or thread');
+  if (chatId !== replyChatId || (replyThread && thread !== replyThread)) {
+    debug('Reply for message in another chat or thread');
+    await ctx.reply('Реплай веде на повідомлення у іншому чаті або гілці!');
+    return;
+  }
+
+  if (!isBot) {
+    debug('Invalid autoupdate command format');
     await ctx.reply(
-      'Надане посилання веде на повідомлення у іншому чаті або гілці!',
+      'Неправильний формат команди встановлення автоматичного оновлення списку завдань!\n/autoupdate з реплаєм на повідомленя зі списком завдань',
     );
     return;
   }
 
-  const result = await client.query(
-    `
-    INSERT INTO autoupdate_messages (chat_id, thread, message_id)
+  const query = `
+    INSERT INTO chats (chat_id, thread, autoupdate_message_id)
     VALUES ($1, $2, $3)
     ON CONFLICT (chat_id, thread) 
-    DO UPDATE SET message_id = EXCLUDED.message_id;
-  `,
-    [chatId, thread, messageId],
-  );
+    DO UPDATE SET autoupdate_message_id = EXCLUDED.autoupdate_message_id;
+  `;
+  const result = await client.query(query, [chatId, replyThread, messageId]);
 
   if (!result.rowCount) {
     debug('This message is already set for autoupdate');

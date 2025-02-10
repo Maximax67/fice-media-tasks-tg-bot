@@ -1,33 +1,16 @@
-import { NekosiaAPI, type AllTagsList } from 'nekosia.js';
-import { retryOnException } from './retry_on_exception';
-
 export const fetchImage = async (
-  tags: AllTagsList[] = ['cute'],
-  retries: number = 3,
+  url: string,
 ): Promise<Buffer<ArrayBufferLike>> => {
-  return retryOnException(async () => {
-    const response = await NekosiaAPI.fetchImages({
-      tags,
-      count: 1,
-      session: 'ip',
-    });
+  const response = await fetch(url);
 
-    if (!response.success) {
-      throw new Error(`NekosiaAPI response was not successfull: ${response}`);
-    }
+  if (!response.ok) {
+    throw new Error(
+      `Image response was not successfull. Status code: ${response.status}`,
+    );
+  }
 
-    const url = response.image.compressed.url;
-    const imageResponse = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
 
-    if (!imageResponse.ok) {
-      throw new Error(
-        `Failed to fetch image. Status code: ${imageResponse.status}`,
-      );
-    }
-
-    const arrayBuffer = await imageResponse.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    return buffer;
-  }, retries);
+  return buffer;
 };

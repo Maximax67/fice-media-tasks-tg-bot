@@ -1,13 +1,14 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { ChangeStatusEvents } from '../enums';
 import { RESPONSIBLE_LENGTH_LIMIT } from '../config';
-import { STATUS_ICONS, STATUS_NAMES } from '../constants';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
-import { TaskStatuses } from '../enums';
 
 import type { Context } from 'telegraf';
 
@@ -43,24 +44,15 @@ export const setTaskResponsible = () => async (ctx: Context) => {
     return;
   }
 
-  if (responsible === selectedTask.assigned_person) {
+  if (responsible === selectedTask.responsible) {
     debug('Responsible not changed');
     await ctx.reply('Відповідальний не змінився');
     return;
   }
 
   const taskId = selectedTask.id;
-  const query = `
-    UPDATE tasks
-    SET assigned_person = $1, status = $2
-    WHERE id = $3
-  `;
-
-  const result = await client.query(query, [
-    responsible,
-    TaskStatuses.IN_PROCESS,
-    taskId,
-  ]);
+  const query = 'UPDATE tasks SET responsible = $1 WHERE id = $2';
+  const result = await client.query(query, [responsible, taskId]);
 
   if (!result.rowCount) {
     debug('Task not found');
@@ -68,15 +60,23 @@ export const setTaskResponsible = () => async (ctx: Context) => {
     return;
   }
 
-  debug('Task responsible set successfully');
-  await ctx.reply(
-    `Відповідального встановлено на таску: ${taskTitleReplacer(selectedTask.title)}\n\n` +
-      `Статус змінено на: ${STATUS_ICONS.IN_PROCESS} ${STATUS_NAMES.IN_PROCESS}`,
-    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    selectedTask.responsible
+      ? ChangeStatusEvents.CHANGE_RESPONSIBLE
+      : ChangeStatusEvents.SET_RESPONSIBLE,
   );
 
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
+  debug('Task responsible set successfully');
+  await ctx.reply(
+    `Відповідального встановлено на таску: ${taskTitleReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
+    { link_preview_options: { is_disabled: true }, parse_mode: 'HTML' },
+  );
 
   await autoupdateTaskList(chatId, thread);
 };

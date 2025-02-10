@@ -1,7 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { ChangeStatusEvents } from '../enums';
 import {
   autoupdateTaskList,
+  changeStatusEvent,
+  formatChangeStatusEventMessage,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
@@ -51,17 +54,23 @@ export const deleteTaskTz = () => async (ctx: Context) => {
     return;
   }
 
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+  const newStatus = await changeStatusEvent(
+    taskId,
+    chatId,
+    thread,
+    ChangeStatusEvents.DELETE_TZ,
+  );
+
   debug('Task tz deleted successfully');
   await ctx.reply(
-    `ТЗ видалене з таски: ${taskTitleReplacer(selectedTask.title)}`,
+    `ТЗ видалене з таски: ${taskTitleReplacer(selectedTask.title)}${formatChangeStatusEventMessage(newStatus)}`,
     {
       link_preview_options: { is_disabled: true },
       parse_mode: 'HTML',
     },
   );
-
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
 
   await autoupdateTaskList(chatId, thread);
 };

@@ -5,8 +5,9 @@ import type { ExtraEditMessageText } from 'telegraf/typings/telegram-types';
 import {
   formatDateTime,
   generateTaskList,
-  getAdditionalText,
+  getChatTaskStatuses,
   getTasksAndCommentsForChat,
+  getChatLinksFormatted,
 } from '../utils';
 
 const debug = createDebug('bot:handle_update_tasks');
@@ -29,16 +30,23 @@ export const handleUpdateTasks = () => async (ctx: Context) => {
   debug('Triggered "handleUpdateTasks" handler');
 
   const chatId = ctx.chat!.id;
-  const thread = (ctx.callbackQuery as any).message.message_thread_id || null;
+  const thread = (ctx.callbackQuery as any).message.message_thread_id || 0;
   const tasks = await getTasksAndCommentsForChat(chatId, thread);
+  const chatLinks = await getChatLinksFormatted(chatId, thread);
   const formattedDatetime = formatDateTime(new Date(), true);
   const updateMessage = `<i>Оновлено: ${formattedDatetime}</i>`;
 
   if (tasks.length === 0) {
     debug('No tasks found');
+
+    const noTasksMessage = 'Немає тасок! Створіть нову командою /new_task';
+    const messageWithLinks = chatLinks
+      ? noTasksMessage + '\n\n' + chatLinks
+      : noTasksMessage;
+
     try {
       await ctx.editMessageText(
-        'Немає тасок! Створіть нову командою /new_task\n' + updateMessage,
+        messageWithLinks + '\n\n' + updateMessage,
         editMessageParams,
       );
     } catch (e: unknown) {
@@ -55,11 +63,11 @@ export const handleUpdateTasks = () => async (ctx: Context) => {
     debug(`Got task list with ${tasks.length} items`);
   }
 
-  const additionalText = getAdditionalText(chatId, thread);
+  const chatTaskStatuses = await getChatTaskStatuses(chatId, thread);
 
   try {
     await ctx.editMessageText(
-      `${generateTaskList(tasks)}${additionalText ? '\n\n' + additionalText : ''}\n\n${updateMessage}`,
+      `${generateTaskList(tasks, chatTaskStatuses)}${chatLinks ? '\n\n' + chatLinks : ''}\n\n${updateMessage}`,
       editMessageParams,
     );
   } catch (e: unknown) {

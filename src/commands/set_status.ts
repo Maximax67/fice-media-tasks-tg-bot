@@ -1,15 +1,14 @@
 import createDebug from 'debug';
-import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 
 import {
-  autoupdateTaskList,
+  escapeHtml,
+  getChatTaskStatuses,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
-import { STATUS_ICONS, STATUS_NAMES } from '../constants';
-import { TaskStatuses } from '../enums';
 
 import type { Context } from 'telegraf';
+import type { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 
 const debug = createDebug('bot:set_status');
 const setTaskStatusRegex = /^(\/\S+)\s+(\d+)$/;
@@ -34,14 +33,25 @@ export const setTaskStatus = () => async (ctx: Context) => {
     return;
   }
 
+  const chatId = ctx.chat!.id;
+  const thread = ctx.message!.message_thread_id || 0;
+  const chatTaskStatuses = await getChatTaskStatuses(chatId, thread);
+  if (chatTaskStatuses.length === 1) {
+    debug('Only one status created');
+    await ctx.reply('Лише один статус створений!');
+    return;
+  }
+
   const taskId = selectedTask.id;
+  const taskStatus = selectedTask.status;
+  const taskStatusId = taskStatus.id;
   const keyboard: InlineKeyboardButton[][] = [];
-  Object.values(TaskStatuses).forEach((taskStatus) => {
-    if (taskStatus !== selectedTask.status) {
+  chatTaskStatuses.forEach((status) => {
+    if (status.id !== taskStatusId) {
       keyboard.push([
         {
-          text: `${STATUS_ICONS[taskStatus]} ${STATUS_NAMES[taskStatus]}`,
-          callback_data: `set_status:${taskId}:${taskStatus}`,
+          text: `${status.icon} ${status.title}`,
+          callback_data: `set_status:${taskId}:${status.id}`,
         },
       ]);
     }
@@ -54,18 +64,12 @@ export const setTaskStatus = () => async (ctx: Context) => {
     },
   ]);
 
-  debug('Task added successfully');
   await ctx.reply(
-    `${taskTitleReplacer(selectedTask.title)}\n\nСтатус: ${STATUS_ICONS[selectedTask.status]} ${STATUS_NAMES[selectedTask.status]}`,
+    `${taskTitleReplacer(selectedTask.title)}\n\nСтатус: ${escapeHtml(taskStatus.icon)} ${escapeHtml(taskStatus.title)}`,
     {
       reply_markup: { inline_keyboard: keyboard },
       link_preview_options: { is_disabled: true },
       parse_mode: 'HTML',
     },
   );
-
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || null;
-
-  await autoupdateTaskList(chatId, thread);
 };
