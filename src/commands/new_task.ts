@@ -172,7 +172,7 @@ export const newTask = () => async (ctx: Context) => {
     WITH task_count AS (
       SELECT COUNT(*) AS count
       FROM tasks
-      WHERE chat_id = $1
+      WHERE chat_id = $1 AND completed_at IS NULL
     )
     INSERT INTO tasks (chat_id, title, tz, deadline, post_deadline, responsible, status_id)
     SELECT $1, $2, $3, $4, $5, $6, $7
