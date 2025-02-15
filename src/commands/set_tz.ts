@@ -70,9 +70,7 @@ export const setTaskTz = () => async (ctx: Context) => {
     taskId,
     chatId,
     thread,
-    selectedTask.tz
-      ? ChangeStatusEvents.CHANGE_TZ
-      : ChangeStatusEvents.SET_TZ,
+    selectedTask.tz ? ChangeStatusEvents.CHANGE_TZ : ChangeStatusEvents.SET_TZ,
   );
 
   debug('Task tz set successfully');

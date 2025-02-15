@@ -82,7 +82,7 @@ export const formatTaskMinimalistic = (task: Task): string => {
   const {
     title,
     url,
-    status: { icon },
+    status,
     completed_at,
   } = task;
 
@@ -93,7 +93,7 @@ export const formatTaskMinimalistic = (task: Task): string => {
 
   return completed_at
     ? `${formatDate(completed_at)} - ${titleFormatted}`
-    : `${escapeHtml(icon)} ${titleFormatted}`;
+    : `${escapeHtml(status.icon)} ${titleFormatted}`;
 };
 
 export const generateTaskList = (

@@ -9,6 +9,8 @@ const debug = createDebug('bot:stats');
 const statsRegex = /^(\/\S+)\s+(.+)$/;
 
 export const getStats = () => async (ctx: Context) => {
+  debug('Triggered "stats" command');
+
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(statsRegex);
 
@@ -25,8 +27,15 @@ export const getStats = () => async (ctx: Context) => {
   const thread = ctx.message!.message_thread_id || 0;
 
   const query = `
-    SELECT t.* FROM tasks t
+    SELECT t.*,
+      jsonb_build_object(
+        'id', cts.id,
+        'title', cts.title,
+        'icon', cts.icon
+      ) AS status
+    FROM tasks t
     JOIN chats c ON t.chat_id = c.id
+    LEFT JOIN chat_task_statuses cts ON t.status_id = cts.id
     WHERE c.chat_id = $1 AND c.thread = $2 AND t.responsible = $3
   `;
   const result = await client.query(query, [chatId, thread, responsible]);

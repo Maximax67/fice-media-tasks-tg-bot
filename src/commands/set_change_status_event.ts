@@ -55,9 +55,12 @@ export const setChangeStatusEvent = () => async (ctx: Context) => {
   const statusIcon = escapeHtml(selectedStatus.icon);
   const statusTitle = escapeHtml(selectedStatus.title);
 
-  await ctx.reply(`Налаштування автоматичної зміни на статус ${statusIcon} ${statusTitle}`, {
-    reply_markup: { inline_keyboard: keyboard },
-    link_preview_options: { is_disabled: true },
-    parse_mode: 'HTML',
-  });
+  await ctx.reply(
+    `Налаштування автоматичної зміни на статус ${statusIcon} ${statusTitle}`,
+    {
+      reply_markup: { inline_keyboard: keyboard },
+      link_preview_options: { is_disabled: true },
+      parse_mode: 'HTML',
+    },
+  );
 };

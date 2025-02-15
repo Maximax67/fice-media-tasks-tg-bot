@@ -24,7 +24,8 @@ export const handleRemoveStatusEvent = () => async (ctx: Context) => {
   const statusId = parseInt(splittedData[1], 10);
   const eventId = parseInt(splittedData[3], 10);
 
-  const query = 'DELETE FROM chat_status_change_events WHERE id = $1 AND status_id = $2'; 
+  const query =
+    'DELETE FROM chat_status_change_events WHERE id = $1 AND status_id = $2';
   const result = await client.query(query, [eventId, statusId]);
 
   if (!result.rowCount) {

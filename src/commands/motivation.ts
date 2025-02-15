@@ -15,7 +15,9 @@ export const motivation = () => async (ctx: Context) => {
   const motivationType = await getMotivationType(chatId, thread);
   if (motivationType === MotivationTypes.NONE) {
     debug('Motivation image type not set');
-    await ctx.reply('Тип мотиваційних зображень не встановлений. Задайте командою /set_motivation');
+    await ctx.reply(
+      'Тип мотиваційних зображень не встановлений. Задайте командою /set_motivation',
+    );
     return;
   }
 
