@@ -53,10 +53,21 @@ export const suggestResponsible = () => async (ctx: Context) => {
   let suggestResponsible = `=== Відповідальні ===\n`;
   responsibles.forEach((row) => {
     const lastCompleted = row.last_completed;
-    const marker = row.has_pending ? '🔴' : '🟢';
     const stats = lastCompleted
       ? `${formatDate(lastCompleted)}, <b>${row.task_count}</b>`
       : 'без виконаних тасок';
+
+    let marker = '🟢';
+    if (row.has_pending) {
+      marker = '🔴';
+    } else if (
+      row.last_completed &&
+      new Date().getTime() - new Date(row.last_completed).getTime() <
+        7 * 24 * 60 * 60 * 1000
+    ) {
+      marker = '🟡';
+    }
+
     suggestResponsible += `\n${marker} <code>${escapeHtml(row.responsible)}</code>: ${stats}`;
   });
 
