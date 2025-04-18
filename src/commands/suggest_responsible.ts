@@ -20,25 +20,33 @@ export const suggestResponsible = () => async (ctx: Context) => {
   const thread = ctx.message!.message_thread_id || 0;
 
   const query = `
-    SELECT 
-      t.responsible, 
+    SELECT
+      t.responsible,
       COUNT(*) AS task_count,
       MAX(t.completed_at) AS last_completed,
       MAX(t.created_at) AS last_created,
-      CASE 
+      CASE
         WHEN COUNT(*) != COUNT(t.completed_at) THEN true
         ELSE false
       END AS has_pending
     FROM tasks t
     JOIN chats c ON t.chat_id = c.id
-    WHERE c.chat_id = $1 
-    AND c.thread = $2
-    AND t.responsible IS NOT NULL
+    WHERE
+      c.chat_id = $1
+      AND (
+        CASE
+          WHEN EXISTS (
+            SELECT 1 FROM shared_threads_chats WHERE chat_id = $1
+          ) THEN TRUE
+          ELSE thread = $2
+        END
+      )
+      AND t.responsible IS NOT NULL
     GROUP BY t.responsible
     ORDER BY 
-      has_pending, 
-      last_completed NULLS FIRST, 
-      task_count, 
+      has_pending,
+      last_completed NULLS FIRST,
+      task_count,
       last_created
   `;
   const result = await client.query(query, [chatId, thread]);

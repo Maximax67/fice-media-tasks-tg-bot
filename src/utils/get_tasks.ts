@@ -16,9 +16,17 @@ export async function getTasksForChat(
     FROM tasks t
     JOIN chats c ON t.chat_id = c.id
     JOIN chat_task_statuses cts ON t.status_id = cts.id
-    WHERE c.chat_id = $1 
-    AND c.thread = $2 
-    AND t.completed_at IS NULL
+    WHERE
+      c.chat_id = $1
+      AND (
+        CASE
+          WHEN EXISTS (
+            SELECT 1 FROM shared_threads_chats WHERE chat_id = $1
+          ) THEN TRUE
+          ELSE thread = $2
+        END
+      )
+      AND t.completed_at IS NULL
     ORDER BY t.id;
   `;
   const res = await client.query(query, [chatId, thread]);

@@ -21,10 +21,12 @@ import {
   getStatuses,
   getTasks,
   helpCommandReply,
+  joinThreadsTasks,
   limitsCommandReply,
   motivation,
   newTask,
   resetChat,
+  separateThreadsTasks,
   setChangeStatusEvent,
   setMotivation,
   setTaskDeadline,
@@ -105,6 +107,8 @@ bot.command('set_motivation', setMotivation());
 bot.command('leaderboard', getLeaderboard());
 bot.command('suggest_responsible', suggestResponsible());
 
+bot.command('separate_threads_tasks', separateThreadsTasks());
+bot.command('join_threads_tasks', joinThreadsTasks());
 bot.command('reset_chat', resetChat());
 
 bot.action(/^delete_task:(\d+)$/, handleDeleteTask());

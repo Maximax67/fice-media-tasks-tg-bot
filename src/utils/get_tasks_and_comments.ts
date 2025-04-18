@@ -28,7 +28,17 @@ export async function getTasksAndCommentsForChat(
       LEFT JOIN comments c ON t.id = c.task_id
       JOIN chat_task_statuses cts ON t.status_id = cts.id
       JOIN chats ON t.chat_id = chats.id
-      WHERE chats.chat_id = $1 AND chats.thread = $2 AND t.completed_at IS NULL
+      WHERE
+        chats.chat_id = $1
+        AND (
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM shared_threads_chats WHERE chat_id = $1
+            ) THEN TRUE
+            ELSE chats.thread = $2
+          END
+        )
+        AND t.completed_at IS NULL
       GROUP BY t.id, cts.id
       ORDER BY t.id
     `;

@@ -11,8 +11,22 @@ import type { ChatTaskStatus, Task } from '../interfaces';
 
 const generateTaskLegend = (statuses: ChatTaskStatus[]): string => {
   let legend = '<b>Легенда:</b>';
+  const iconMap = new Map<string, Set<string>>();
+
   for (const status of statuses) {
-    legend += `\n• ${escapeHtml(status.icon)} — ${escapeHtml(status.title)}`;
+    const icon = status.icon;
+    const title = status.title;
+
+    if (!iconMap.has(icon)) {
+      iconMap.set(icon, new Set());
+    }
+
+    iconMap.get(icon)!.add(title);
+  }
+
+  for (const [icon, titlesSet] of iconMap.entries()) {
+    const titles = Array.from(titlesSet).map(escapeHtml).join(' / ');
+    legend += `\n• ${escapeHtml(icon)} — ${titles}`;
   }
 
   return legend;
@@ -79,12 +93,7 @@ export const formatTask = (
 };
 
 export const formatTaskMinimalistic = (task: Task): string => {
-  const {
-    title,
-    url,
-    status,
-    completed_at,
-  } = task;
+  const { title, url, status, completed_at } = task;
 
   const escapedTitle = taskTitleReplacer(title, true);
   const titleFormatted = url

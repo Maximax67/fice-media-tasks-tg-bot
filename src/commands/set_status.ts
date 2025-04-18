@@ -2,7 +2,7 @@ import createDebug from 'debug';
 
 import {
   escapeHtml,
-  getChatTaskStatuses,
+  getChatTaskStatusesFromChat,
   getSelectedTask,
   taskTitleReplacer,
 } from '../utils';
@@ -33,9 +33,9 @@ export const setTaskStatus = () => async (ctx: Context) => {
     return;
   }
 
-  const chatId = ctx.chat!.id;
-  const thread = ctx.message!.message_thread_id || 0;
-  const chatTaskStatuses = await getChatTaskStatuses(chatId, thread);
+  const chatTaskStatuses = await getChatTaskStatusesFromChat(
+    selectedTask.chat_id,
+  );
   if (chatTaskStatuses.length === 1) {
     debug('Only one status created');
     await ctx.reply('Лише один статус створений!');

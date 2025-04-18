@@ -25,9 +25,17 @@ export const getLeaderboard = () => async (ctx: Context) => {
       MAX(t.completed_at) AS last_completed
     FROM tasks t
     JOIN chats c ON t.chat_id = c.id
-    WHERE c.chat_id = $1 
-    AND c.thread = $2
-    AND t.responsible IS NOT NULL
+    WHERE
+      c.chat_id = $1 
+      AND (
+        CASE
+          WHEN EXISTS (
+            SELECT 1 FROM shared_threads_chats WHERE chat_id = $1
+          ) THEN TRUE
+          ELSE thread = $2
+        END
+      )
+      AND t.responsible IS NOT NULL
     GROUP BY t.responsible
     ORDER BY task_count DESC, last_completed DESC NULLS LAST;
   `;

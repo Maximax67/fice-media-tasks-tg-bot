@@ -77,6 +77,11 @@ const createTableQuery = `
   );
 
   CREATE INDEX IF NOT EXISTS idx_chat_links_chat ON chat_links (chat_id);
+
+  CREATE TABLE IF NOT EXISTS shared_threads_chats (
+    chat_id BIGINT PRIMARY KEY,
+    timestamp TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
 `;
 
 const client = new Client({

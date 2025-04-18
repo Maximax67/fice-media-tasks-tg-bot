@@ -25,57 +25,85 @@ const editMessageParams: ExtraEditMessageText = {
 };
 
 export const autoupdateTaskList = async (chatId: number, thread: number) => {
-  const query =
-    'SELECT autoupdate_message_id FROM chats WHERE chat_id = $1 AND thread = $2';
-  const result = await client.query(query, [chatId, thread]);
+  let result;
+  if (thread === -1) {
+    result = await client.query(
+      'SELECT autoupdate_message_id, thread FROM chats WHERE chat_id = $1',
+      [chatId],
+    );
+  } else {
+    const query = `
+      SELECT autoupdate_message_id
+      FROM chats
+      WHERE
+        chat_id = $1
+        AND (
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM shared_threads_chats WHERE chat_id = $1
+            ) THEN TRUE
+            ELSE thread = $2
+          END
+        )
+    `;
+    result = await client.query(query, [chatId, thread]);
+  }
+
   const rows = result.rows;
   if (!rows.length) {
     return;
   }
 
-  const messageId: number = rows[0].autoupdate_message_id;
+  const updateAll = thread === -1;
+  for (const row of rows) {
+    if (updateAll) {
+      thread = row.thread;
+    }
 
-  const tasks = await getTasksAndCommentsForChat(chatId, thread);
-  const chatTaskStatuses = await getChatTaskStatuses(chatId, thread);
-  const chatLinks = await getChatLinksFormatted(chatId, thread);
-  const formattedDatetime = formatDateTime(new Date(), true);
-  const updateMessage = `<i>Оновлено: ${formattedDatetime}</i>`;
+    const messageId: number = row.autoupdate_message_id;
 
-  const bot = new Telegram(BOT_TOKEN);
+    const tasks = await getTasksAndCommentsForChat(chatId, thread);
+    const chatTaskStatuses = await getChatTaskStatuses(chatId, thread);
+    const chatLinks = await getChatLinksFormatted(chatId, thread);
+    const formattedDatetime = formatDateTime(new Date(), true);
+    const updateMessage = `<i>Оновлено: ${formattedDatetime}</i>`;
 
-  if (tasks.length === 0) {
+    const bot = new Telegram(BOT_TOKEN);
+
+    if (tasks.length === 0) {
+      try {
+        const noTasksMessage = 'Немає тасок! Створіть нову командою /new_task';
+        const messageWithLinks = chatLinks
+          ? noTasksMessage + '\n\n' + chatLinks
+          : noTasksMessage;
+
+        await bot.editMessageText(
+          chatId,
+          messageId,
+          undefined,
+          messageWithLinks + '\n\n' + updateMessage,
+          editMessageParams,
+        );
+      } catch (e: unknown) {
+        if (!(e instanceof TelegramError) || e.code !== 400) {
+          throw e;
+        }
+      }
+      return;
+    }
+
     try {
-      const noTasksMessage = 'Немає тасок! Створіть нову командою /new_task';
-      const messageWithLinks = chatLinks
-        ? noTasksMessage + '\n\n' + chatLinks
-        : noTasksMessage;
-
       await bot.editMessageText(
         chatId,
         messageId,
         undefined,
-        messageWithLinks + '\n\n' + updateMessage,
+        `${generateTaskList(tasks, chatTaskStatuses)}${chatLinks ? '\n\n' + chatLinks : ''}\n\n${updateMessage}`,
         editMessageParams,
       );
     } catch (e: unknown) {
       if (!(e instanceof TelegramError) || e.code !== 400) {
         throw e;
       }
-    }
-    return;
-  }
-
-  try {
-    await bot.editMessageText(
-      chatId,
-      messageId,
-      undefined,
-      `${generateTaskList(tasks, chatTaskStatuses)}${chatLinks ? '\n\n' + chatLinks : ''}\n\n${updateMessage}`,
-      editMessageParams,
-    );
-  } catch (e: unknown) {
-    if (!(e instanceof TelegramError) || e.code !== 400) {
-      throw e;
     }
   }
 };
