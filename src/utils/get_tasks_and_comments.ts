@@ -15,7 +15,7 @@ export async function getTasksAndCommentsForChat(
               'task_id', c.task_id,
               'comment_text', c.comment_text,
               'created_at', c.created_at
-            )
+            ) ORDER BY c.created_at
           ) FILTER (WHERE c.id IS NOT NULL), 
           '[]'
         ) AS comments,
