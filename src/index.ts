@@ -20,6 +20,7 @@ import {
   getStats,
   getStatuses,
   getTasks,
+  getTasksMessage,
   helpCommandReply,
   joinThreadsTasks,
   limitsCommandReply,
@@ -101,6 +102,7 @@ bot.command('delete_url', deleteTaskUrl());
 bot.command('edits', edits());
 bot.command('stats', getStats());
 bot.command('autoupdate', autoupdate());
+bot.command('tasks_message', getTasksMessage());
 bot.command('disable_autoupdate', disableAutoupdate());
 bot.command('motivation', motivation());
 bot.command('set_motivation', setMotivation());

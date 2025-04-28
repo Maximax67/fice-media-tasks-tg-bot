@@ -38,3 +38,4 @@ export * from './stats';
 export * from './statuses';
 export * from './suggest_responsible';
 export * from './tasks';
+export * from './tasks_message';
