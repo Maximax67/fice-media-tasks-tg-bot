@@ -16,6 +16,7 @@ export * from './delete_tz';
 export * from './delete_url';
 export * from './disable_autoupdate';
 export * from './edits';
+export * from './export_data';
 export * from './help';
 export * from './join_threads_tasks';
 export * from './leaderboard';

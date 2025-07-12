@@ -16,6 +16,7 @@ import {
   deleteTaskUrl,
   disableAutoupdate,
   edits,
+  exportData,
   getLeaderboard,
   getStats,
   getStatuses,
@@ -111,6 +112,8 @@ bot.command('suggest_responsible', suggestResponsible());
 
 bot.command('separate_threads_tasks', separateThreadsTasks());
 bot.command('join_threads_tasks', joinThreadsTasks());
+
+bot.command('export_data', exportData());
 bot.command('reset_chat', resetChat());
 
 bot.action(/^delete_task:(\d+)$/, handleDeleteTask());
