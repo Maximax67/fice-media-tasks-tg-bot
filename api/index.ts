@@ -1,4 +1,5 @@
 import { startVercel } from '../src';
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handle(req: VercelRequest, res: VercelResponse) {

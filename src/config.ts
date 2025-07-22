@@ -52,6 +52,9 @@ export const URL_DESCRIPTION_LENGTH_LIMIT = parseInt(
   10,
 );
 
+export const EXPORT_DATA_SECRET = process.env.EXPORT_DATA_SECRET;
+export const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+
 export const TASKS_LIMIT = parseInt(process.env.TASKS_LIMIT || '10', 10);
 export const COMMENTS_LIMIT = parseInt(process.env.COMMENTS_LIMIT || '5', 10);
 export const TASK_STATUSES_LIMIT = parseInt(
