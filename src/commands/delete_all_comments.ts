@@ -14,7 +14,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:delete_all_comments');
 const deleteAllCommentsRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const deleteAllTaskComments = () => async (ctx: Context) => {
+export const deleteAllTaskComments = async (ctx: Context) => {
   debug('Triggered "delete_all_comments" command');
 
   const message: string = (ctx.message as any).text.trim();

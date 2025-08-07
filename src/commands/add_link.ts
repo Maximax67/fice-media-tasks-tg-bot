@@ -12,7 +12,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:add_link');
 const addLinkRegex = /^(\/\S+)\s+(https?:\/\/\S+)\s*(.+)?$/;
 
-export const addLink = () => async (ctx: Context) => {
+export const addLink = async (ctx: Context) => {
   debug('Triggered "add_link" command');
 
   const message: string = (ctx.message as any).text.trim();

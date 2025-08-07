@@ -17,7 +17,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:add_comment');
 const addCommentRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
 
-export const addComment = () => async (ctx: Context) => {
+export const addComment = async (ctx: Context) => {
   debug('Triggered "add_comment" command');
 
   const message: string = (ctx.message as any).text.trim();

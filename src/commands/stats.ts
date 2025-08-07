@@ -8,7 +8,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:stats');
 const statsRegex = /^(\/\S+)\s+(.+)$/;
 
-export const getStats = () => async (ctx: Context) => {
+export const getStats = async (ctx: Context) => {
   debug('Triggered "stats" command');
 
   const message: string = (ctx.message as any).text.trim();

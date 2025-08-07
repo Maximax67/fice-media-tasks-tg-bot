@@ -12,7 +12,7 @@ interface LeaderboardRow {
   last_completed: Date | null;
 }
 
-export const getLeaderboard = () => async (ctx: Context) => {
+export const getLeaderboard = async (ctx: Context) => {
   debug('Triggered "leaderboard" command');
 
   const chatId = ctx.chat!.id;

@@ -14,7 +14,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:delete_tz');
 const deleteTzRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const deleteTaskTz = () => async (ctx: Context) => {
+export const deleteTaskTz = async (ctx: Context) => {
   debug('Triggered "delete_tz" command');
 
   const message: string = (ctx.message as any).text.trim();

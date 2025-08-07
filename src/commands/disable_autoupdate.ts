@@ -5,7 +5,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:disable_autoupdate');
 
-export const disableAutoupdate = () => async (ctx: Context) => {
+export const disableAutoupdate = async (ctx: Context) => {
   debug('Triggered "disable_autoupdate" command');
 
   const chatId = ctx.chat!.id;

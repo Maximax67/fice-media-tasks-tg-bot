@@ -11,7 +11,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:set_change_status_event');
 const setChangeStatusEventRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const setChangeStatusEvent = () => async (ctx: Context) => {
+export const setChangeStatusEvent = async (ctx: Context) => {
   debug('Triggered "set_change_status_event" command');
 
   const message: string = (ctx.message as any).text.trim();

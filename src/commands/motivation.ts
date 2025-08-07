@@ -6,7 +6,7 @@ import { MotivationTypes } from '../enums';
 
 const debug = createDebug('bot:motivation');
 
-export const motivation = () => async (ctx: Context) => {
+export const motivation = async (ctx: Context) => {
   debug('Triggered "motivation" command');
 
   const chatId = ctx.chat!.id;

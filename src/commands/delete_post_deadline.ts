@@ -14,7 +14,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:delete_post_deadline');
 const deletePostDeadlineRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const deleteTaskPostDeadline = () => async (ctx: Context) => {
+export const deleteTaskPostDeadline = async (ctx: Context) => {
   debug('Triggered "delete_post_deadline" command');
 
   const message: string = (ctx.message as any).text.trim();

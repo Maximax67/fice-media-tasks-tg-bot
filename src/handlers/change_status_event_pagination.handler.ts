@@ -7,7 +7,7 @@ import type { StatusesWithEvents } from '../interfaces';
 
 const debug = createDebug('bot:handle_change_status_event_pagination');
 
-export const handleChangeStatusEventPagination = () => async (ctx: Context) => {
+export const handleChangeStatusEventPagination = async (ctx: Context) => {
   debug('Triggered "handle_change_status_event_pagination" handler');
 
   const callbackData: string = (ctx.callbackQuery as any).data;

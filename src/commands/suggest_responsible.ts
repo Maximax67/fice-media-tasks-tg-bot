@@ -13,7 +13,7 @@ interface SuggestResponsibleRow {
   has_pending: boolean;
 }
 
-export const suggestResponsible = () => async (ctx: Context) => {
+export const suggestResponsible = async (ctx: Context) => {
   debug('Triggered "suggest_responsible" command');
 
   const chatId = ctx.chat!.id;

@@ -9,7 +9,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:handle_set_motivation');
 
-export const handleSetMotivation = () => async (ctx: Context) => {
+export const handleSetMotivation = async (ctx: Context) => {
   debug('Triggered "handle_set_motivation" handler');
 
   const callbackData: string = (ctx.callbackQuery as any).data;

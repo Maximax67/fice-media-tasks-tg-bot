@@ -5,7 +5,7 @@ import { fetchImage } from './fetch_image';
 export const fetchNekosiaImage = async (
   tags: AllTagsList[] = ['cute'],
   retries: number = 3,
-): Promise<Buffer<ArrayBufferLike>> => {
+): Promise<Buffer> => {
   return retryOnException(async () => {
     const response = await NekosiaAPI.fetchImages({
       tags,

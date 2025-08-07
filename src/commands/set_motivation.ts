@@ -10,7 +10,7 @@ import type { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram'
 
 const debug = createDebug('bot:set_motivation');
 
-export const setMotivation = () => async (ctx: Context) => {
+export const setMotivation = async (ctx: Context) => {
   debug('Triggered "set_motivation" command');
 
   const chatId = ctx.chat!.id;

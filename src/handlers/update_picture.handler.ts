@@ -8,7 +8,7 @@ import { MotivationTypes } from '../enums';
 
 const debug = createDebug('bot:handle_update_picture');
 
-export const handleUpdatePicture = () => async (ctx: Context) => {
+export const handleUpdatePicture = async (ctx: Context) => {
   debug('Triggered "handleUpdatePicture" handler');
 
   const callbackData: string = (ctx.callbackQuery as any).data;

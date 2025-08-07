@@ -1,6 +1,4 @@
-export const fetchImage = async (
-  url: string,
-): Promise<Buffer<ArrayBufferLike>> => {
+export const fetchImage = async (url: string): Promise<Buffer> => {
   const response = await fetch(url);
 
   if (!response.ok) {

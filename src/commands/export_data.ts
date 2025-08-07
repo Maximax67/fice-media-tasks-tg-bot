@@ -84,7 +84,7 @@ export const getExportObject = async (chatId: number): Promise<ExportData | null
   };
 } 
 
-export const exportData = () => async (ctx: Context) => {
+export const exportData = async (ctx: Context) => {
   debug('Triggered "export_data" command');
 
   const chatId = ctx.chat!.id;

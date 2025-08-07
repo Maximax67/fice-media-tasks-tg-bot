@@ -6,7 +6,7 @@ import { CHANGE_STATUS_EVENT_NAMES } from '../constants';
 
 const debug = createDebug('bot:statuses');
 
-export const getStatuses = () => async (ctx: Context) => {
+export const getStatuses = async (ctx: Context) => {
   debug('Triggered "statuses" command');
 
   const chatId = ctx.chat!.id;

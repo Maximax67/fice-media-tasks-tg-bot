@@ -5,7 +5,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:task_message');
 
-export const getTasksMessage = () => async (ctx: Context) => {
+export const getTasksMessage = async (ctx: Context) => {
   debug('Triggered "task_message" command');
 
   if (ctx.chat?.type === 'private') {

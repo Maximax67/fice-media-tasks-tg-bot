@@ -14,9 +14,7 @@ interface MemeApiResponse {
   preview: string[];
 }
 
-export const fetchMemeImage = async (
-  retries: number = 3,
-): Promise<Buffer<ArrayBufferLike>> => {
+export const fetchMemeImage = async (retries: number = 3): Promise<Buffer> => {
   return retryOnException(async () => {
     const randomThreadIndex = Math.floor(
       Math.random() * MEMES_REDDIT_THREADS.length,

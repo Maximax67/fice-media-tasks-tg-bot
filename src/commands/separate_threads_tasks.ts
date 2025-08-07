@@ -6,7 +6,7 @@ import { autoupdateTaskList } from '../utils';
 
 const debug = createDebug('bot:separate_threads_tasks');
 
-export const separateThreadsTasks = () => async (ctx: Context) => {
+export const separateThreadsTasks = async (ctx: Context) => {
   debug('Triggered "separate_threads_tasks" command');
 
   const chatId = ctx.chat!.id;

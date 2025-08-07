@@ -26,7 +26,7 @@ const editMessageParams: ExtraEditMessageText = {
   },
 };
 
-export const handleUpdateTasks = () => async (ctx: Context) => {
+export const handleUpdateTasks = async (ctx: Context) => {
   debug('Triggered "handleUpdateTasks" handler');
 
   const chatId = ctx.chat!.id;

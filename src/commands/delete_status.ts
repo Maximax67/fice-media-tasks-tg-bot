@@ -12,7 +12,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:delete_status');
 const deleteStatusRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const deleteStatus = () => async (ctx: Context) => {
+export const deleteStatus = async (ctx: Context) => {
   debug('Triggered "delete_status" command');
 
   const message: string = (ctx.message as any).text.trim();

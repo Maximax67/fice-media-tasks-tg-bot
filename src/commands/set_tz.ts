@@ -16,7 +16,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:set_tz');
 const setTaskTzRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
 
-export const setTaskTz = () => async (ctx: Context) => {
+export const setTaskTz = async (ctx: Context) => {
   debug('Triggered "set_tz" command');
 
   const message: string = (ctx.message as any).text.trim();

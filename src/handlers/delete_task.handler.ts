@@ -6,7 +6,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:handle_delete_task');
 
-export const handleDeleteTask = () => async (ctx: Context) => {
+export const handleDeleteTask = async (ctx: Context) => {
   debug('Triggered "handleDeleteTask" handler');
 
   const callbackData: string = (ctx.callbackQuery as any).data;

@@ -8,7 +8,7 @@ import type { StatusesWithEvents } from '../interfaces';
 
 const debug = createDebug('bot:handle_remove_status_event');
 
-export const handleRemoveStatusEvent = () => async (ctx: Context) => {
+export const handleRemoveStatusEvent = async (ctx: Context) => {
   debug('Triggered "handle_remove_status_event" handler');
 
   const callbackData: string = (ctx.callbackQuery as any).data;

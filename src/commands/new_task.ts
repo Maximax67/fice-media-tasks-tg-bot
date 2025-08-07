@@ -36,7 +36,7 @@ const newTaskCommandSyntaxError = async (ctx: Context): Promise<void> => {
 
 const tempReplacerChar = '\uFFFF';
 
-export const newTask = () => async (ctx: Context) => {
+export const newTask = async (ctx: Context) => {
   debug('Triggereыd "new_task" command');
 
   const chatId = ctx.chat!.id;

@@ -6,7 +6,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:delete_all_links');
 
-export const deleteAllLinks = () => async (ctx: Context) => {
+export const deleteAllLinks = async (ctx: Context) => {
   debug('Triggered "delete_all_links" command');
 
   const chatId = ctx.chat!.id;

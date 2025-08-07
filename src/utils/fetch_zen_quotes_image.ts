@@ -3,7 +3,7 @@ import { retryOnException } from './retry_on_exception';
 
 export const fetchZenQuotesImage = async (
   retries: number = 3,
-): Promise<Buffer<ArrayBufferLike>> => {
+): Promise<Buffer> => {
   return retryOnException(
     async () => await fetchImage('https://zenquotes.io/api/image'),
     retries,

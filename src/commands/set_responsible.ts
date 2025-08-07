@@ -15,7 +15,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:set_responsible');
 const setTaskResponsibleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
 
-export const setTaskResponsible = () => async (ctx: Context) => {
+export const setTaskResponsible = async (ctx: Context) => {
   debug('Triggered "set_responsible" command');
 
   const message: string = (ctx.message as any).text.trim();

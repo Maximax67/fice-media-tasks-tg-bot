@@ -15,7 +15,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:set_url');
 const setTaskUrlRegex = /^(\/\S+)\s+(\d+)\s+(https?:\/\/\S+)$/;
 
-export const setTaskUrl = () => async (ctx: Context) => {
+export const setTaskUrl = async (ctx: Context) => {
   debug('Triggered "set_url" command');
 
   const message: string = (ctx.message as any).text.trim();

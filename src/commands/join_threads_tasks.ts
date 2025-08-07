@@ -6,7 +6,7 @@ import { autoupdateTaskList } from '../utils';
 
 const debug = createDebug('bot:join_threads_tasks');
 
-export const joinThreadsTasks = () => async (ctx: Context) => {
+export const joinThreadsTasks = async (ctx: Context) => {
   debug('Triggered "join_threads_tasks" command');
 
   const chatId = ctx.chat!.id;

@@ -14,7 +14,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:set_title');
 const updateTaskTitleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
 
-export const setTaskTitle = () => async (ctx: Context) => {
+export const setTaskTitle = async (ctx: Context) => {
   debug('Triggered "set_title" command');
 
   const message: string = (ctx.message as any).text.trim();

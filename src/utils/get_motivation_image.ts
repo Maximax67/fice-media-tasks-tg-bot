@@ -18,7 +18,7 @@ const motivationGetterFunctions: Record<MotivationTypeSubset, Function> = {
 
 export async function getMotivationImage(
   type: MotivationTypes,
-): Promise<Buffer<ArrayBufferLike> | null> {
+): Promise<Buffer | null> {
   if (type === MotivationTypes.NONE) {
     return null;
   }

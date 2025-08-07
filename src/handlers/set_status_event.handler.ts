@@ -9,7 +9,7 @@ import type { ChangeStatusEvents } from '../enums';
 
 const debug = createDebug('bot:handle_set_status_event');
 
-export const handleSetStatusEvent = () => async (ctx: Context) => {
+export const handleSetStatusEvent = async (ctx: Context) => {
   debug('Triggered "handle_set_status_event" handler');
 
   const callbackData: string = (ctx.callbackQuery as any).data;

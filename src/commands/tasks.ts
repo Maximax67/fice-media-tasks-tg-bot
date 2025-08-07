@@ -10,7 +10,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:tasks');
 
-export const getTasks = () => async (ctx: Context) => {
+export const getTasks = async (ctx: Context) => {
   debug('Triggered "tasks" command');
 
   const chatId = ctx.chat!.id;

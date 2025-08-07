@@ -11,7 +11,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:edits');
 
-export const edits = () => async (ctx: Context) => {
+export const edits = async (ctx: Context) => {
   debug('Triggered "edits" command');
 
   const chatId = ctx.chat!.id;

@@ -14,7 +14,7 @@ import { ChangeStatusEvents } from '../enums';
 const debug = createDebug('bot:delete_url');
 const deleteUrlRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const deleteTaskUrl = () => async (ctx: Context) => {
+export const deleteTaskUrl = async (ctx: Context) => {
   debug('Triggered "delete_url" command');
 
   const message: string = (ctx.message as any).text.trim();

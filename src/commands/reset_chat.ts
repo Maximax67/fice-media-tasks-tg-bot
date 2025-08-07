@@ -5,7 +5,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:reset_chat');
 
-export const resetChat = () => async (ctx: Context) => {
+export const resetChat = async (ctx: Context) => {
   debug('Triggered "reset_chat" command');
 
   const chatId = ctx.chat!.id;

@@ -5,7 +5,7 @@ import type { Context } from 'telegraf';
 
 const debug = createDebug('bot:autoupdate');
 
-export const autoupdate = () => async (ctx: Context) => {
+export const autoupdate = async (ctx: Context) => {
   debug('Triggered "autoupdate" command');
 
   const replyToMessage = (ctx.message as any).reply_to_message;

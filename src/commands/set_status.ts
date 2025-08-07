@@ -13,7 +13,7 @@ import type { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram'
 const debug = createDebug('bot:set_status');
 const setTaskStatusRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const setTaskStatus = () => async (ctx: Context) => {
+export const setTaskStatus = async (ctx: Context) => {
   debug('Triggered "set_status" command');
 
   const message: string = (ctx.message as any).text.trim();

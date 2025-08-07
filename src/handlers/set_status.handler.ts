@@ -16,7 +16,7 @@ interface TaskStatusIconWithTitle {
   title: string;
 }
 
-export const handleSetStatusTask = () => async (ctx: Context) => {
+export const handleSetStatusTask = async (ctx: Context) => {
   debug('Triggered "handleSetStatusTask" handler');
 
   const callbackData: string = (ctx.callbackQuery as any).data;

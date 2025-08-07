@@ -12,7 +12,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:add_status');
 const addStatusRegex = /^(\/\S+)\s+([^\n\s\t]+)\s+(.+)$/v;
 
-export const addStatus = () => async (ctx: Context) => {
+export const addStatus = async (ctx: Context) => {
   debug('Triggered "add_status" command');
 
   const message: string = (ctx.message as any).text.trim();

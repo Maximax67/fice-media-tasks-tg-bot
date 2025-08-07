@@ -7,7 +7,7 @@ import type { Context } from 'telegraf';
 const debug = createDebug('bot:delete_link');
 const deleteLinkRegex = /^(\/\S+)\s+(\d+)$/;
 
-export const deleteLink = () => async (ctx: Context) => {
+export const deleteLink = async (ctx: Context) => {
   debug('Triggered "delete_link" command');
 
   const message: string = (ctx.message as any).text.trim();
