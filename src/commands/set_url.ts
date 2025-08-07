@@ -3,6 +3,7 @@ import { client } from '../core';
 import { ChangeStatusEvents } from '../enums';
 import { COMPLETE_TASK_URL_LENGTH_LIMIT } from '../config';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   changeStatusEvent,
   formatChangeStatusEventMessage,
@@ -17,6 +18,10 @@ const setTaskUrlRegex = /^(\/\S+)\s+(\d+)\s+(https?:\/\/\S+)$/;
 
 export const setTaskUrl = async (ctx: Context) => {
   debug('Triggered "set_url" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(setTaskUrlRegex);

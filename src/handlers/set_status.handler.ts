@@ -1,6 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { autoupdateTaskList, taskTitleReplacer } from '../utils';
+import {
+  applyRestrictions,
+  autoupdateTaskList,
+  taskTitleReplacer,
+} from '../utils';
 
 import type { QueryResult } from 'pg';
 import type { Context } from 'telegraf';
@@ -18,6 +22,10 @@ interface TaskStatusIconWithTitle {
 
 export const handleSetStatusTask = async (ctx: Context) => {
   debug('Triggered "handleSetStatusTask" handler');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const callbackData: string = (ctx.callbackQuery as any).data;
   if (!callbackData.startsWith('set_status:')) {

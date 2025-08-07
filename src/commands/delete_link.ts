@@ -1,6 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { autoupdateTaskList, formatChatLink, getLinksForChat } from '../utils';
+import {
+  applyRestrictions,
+  autoupdateTaskList,
+  formatChatLink,
+  getLinksForChat,
+} from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -9,6 +14,10 @@ const deleteLinkRegex = /^(\/\S+)\s+(\d+)$/;
 
 export const deleteLink = async (ctx: Context) => {
   debug('Triggered "delete_link" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(deleteLinkRegex);

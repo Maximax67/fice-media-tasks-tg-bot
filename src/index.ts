@@ -2,10 +2,13 @@ import { Telegraf } from 'telegraf';
 
 import {
   addComment,
+  addLink,
   addStatus,
   autoupdate,
+  deleteAllLinks,
   deleteAllTaskComments,
   deleteAllTasks,
+  deleteLink,
   deleteStatus,
   deleteTask,
   deleteTaskComment,
@@ -24,9 +27,11 @@ import {
   getTasksMessage,
   helpCommandReply,
   joinThreadsTasks,
+  limitAccess,
   limitsCommandReply,
   motivation,
   newTask,
+  openAccess,
   resetChat,
   separateThreadsTasks,
   setChangeStatusEvent,
@@ -58,9 +63,6 @@ import { development, production } from './core';
 import { BOT_TOKEN, ENVIRONMENT } from './config';
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { addLink } from './commands/add_link';
-import { deleteLink } from './commands/delete_link';
-import { deleteAllLinks } from './commands/delete_all_links';
 
 const bot = new Telegraf(BOT_TOKEN);
 
@@ -112,6 +114,9 @@ bot.command('suggest_responsible', suggestResponsible);
 
 bot.command('separate_threads_tasks', separateThreadsTasks);
 bot.command('join_threads_tasks', joinThreadsTasks);
+
+bot.command('limit_access', limitAccess);
+bot.command('open_access', openAccess);
 
 bot.command('export_data', exportData);
 bot.command('reset_chat', resetChat);

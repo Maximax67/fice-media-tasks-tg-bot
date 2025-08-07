@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   changeStatusEvent,
   formatChangeStatusEventMessage,
@@ -16,6 +17,10 @@ const deleteUrlRegex = /^(\/\S+)\s+(\d+)$/;
 
 export const deleteTaskUrl = async (ctx: Context) => {
   debug('Triggered "delete_url" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(deleteUrlRegex);

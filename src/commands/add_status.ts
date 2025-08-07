@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { autoupdateTaskList } from '../utils';
+import { applyRestrictions, autoupdateTaskList } from '../utils';
 import {
   TASK_STATUS_ICON_LENGTH_LIMIT,
   TASK_STATUS_TITLE_LENGTH_LIMIT,
@@ -14,6 +14,10 @@ const addStatusRegex = /^(\/\S+)\s+([^\n\s\t]+)\s+(.+)$/v;
 
 export const addStatus = async (ctx: Context) => {
   debug('Triggered "add_status" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(addStatusRegex);

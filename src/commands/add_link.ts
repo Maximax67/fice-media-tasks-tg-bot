@@ -1,6 +1,10 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { autoupdateTaskList, formatChatLink } from '../utils';
+import {
+  applyRestrictions,
+  autoupdateTaskList,
+  formatChatLink,
+} from '../utils';
 import {
   URL_DESCRIPTION_LENGTH_LIMIT,
   URL_LENGTH_LIMIT,
@@ -14,6 +18,10 @@ const addLinkRegex = /^(\/\S+)\s+(https?:\/\/\S+)\s*(.+)?$/;
 
 export const addLink = async (ctx: Context) => {
   debug('Triggered "add_link" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(addLinkRegex);

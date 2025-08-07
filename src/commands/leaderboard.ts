@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { escapeHtml } from '../utils';
+import { applyRestrictions, escapeHtml } from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -14,6 +14,10 @@ interface LeaderboardRow {
 
 export const getLeaderboard = async (ctx: Context) => {
   debug('Triggered "leaderboard" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || 0;

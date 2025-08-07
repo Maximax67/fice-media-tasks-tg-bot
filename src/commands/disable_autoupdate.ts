@@ -2,11 +2,16 @@ import createDebug from 'debug';
 import { client } from '../core';
 
 import type { Context } from 'telegraf';
+import { applyRestrictions } from '../utils';
 
 const debug = createDebug('bot:disable_autoupdate');
 
 export const disableAutoupdate = async (ctx: Context) => {
   debug('Triggered "disable_autoupdate" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || 0;

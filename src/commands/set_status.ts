@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 
 import {
+  applyRestrictions,
   escapeHtml,
   getChatTaskStatusesFromChat,
   getSelectedTask,
@@ -15,6 +16,10 @@ const setTaskStatusRegex = /^(\/\S+)\s+(\d+)$/;
 
 export const setTaskStatus = async (ctx: Context) => {
   debug('Triggered "set_status" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(setTaskStatusRegex);

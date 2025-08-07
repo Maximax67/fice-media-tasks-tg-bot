@@ -1,7 +1,11 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import { STATUS_EVENT_KEYBOARD_ITEMS } from '../constants';
-import { getStatusesWithEvents, makeChangeStatusEventKeyboard } from '../utils';
+import {
+  applyRestrictions,
+  getStatusesWithEvents,
+  makeChangeStatusEventKeyboard,
+} from '../utils';
 
 import type { Context } from 'telegraf';
 import type { StatusesWithEvents } from '../interfaces';
@@ -10,6 +14,10 @@ const debug = createDebug('bot:handle_remove_status_event');
 
 export const handleRemoveStatusEvent = async (ctx: Context) => {
   debug('Triggered "handle_remove_status_event" handler');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const callbackData: string = (ctx.callbackQuery as any).data;
   if (!callbackData.startsWith('rse:')) {

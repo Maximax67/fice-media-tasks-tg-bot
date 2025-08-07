@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   changeStatusEvent,
   formatChangeStatusEventMessage,
@@ -18,6 +19,10 @@ const setTaskTzRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
 
 export const setTaskTz = async (ctx: Context) => {
   debug('Triggered "set_tz" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(setTaskTzRegex);

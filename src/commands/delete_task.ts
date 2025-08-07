@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   getSelectedTask,
   taskTitleReplacer,
@@ -13,6 +14,10 @@ const deleteTaskRegex = /^(\/\S+)\s+(\d+)$/;
 
 export const deleteTask = async (ctx: Context) => {
   debug('Triggered "delete_task" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(deleteTaskRegex);

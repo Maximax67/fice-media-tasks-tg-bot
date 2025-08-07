@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import { client } from '../core';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   escapeHtml,
   getSelectedStatus,
@@ -14,6 +15,10 @@ const deleteStatusRegex = /^(\/\S+)\s+(\d+)$/;
 
 export const deleteStatus = async (ctx: Context) => {
   debug('Triggered "delete_status" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(deleteStatusRegex);

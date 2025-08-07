@@ -3,10 +3,13 @@ import { client } from '../core';
 
 import type { Context } from 'telegraf';
 import type { ExportData } from '../interfaces';
+import { applyRestrictions } from '../utils';
 
 const debug = createDebug('bot:export_data');
 
-export const getExportObject = async (chatId: number): Promise<ExportData | null> => {
+export const getExportObject = async (
+  chatId: number,
+): Promise<ExportData | null> => {
   const { rows } = await client.query(
     `
       SELECT
@@ -82,10 +85,14 @@ export const getExportObject = async (chatId: number): Promise<ExportData | null
     timestamp,
     threads,
   };
-} 
+};
 
 export const exportData = async (ctx: Context) => {
   debug('Triggered "export_data" command');
+
+  if (!(await applyRestrictions(ctx, true))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
 

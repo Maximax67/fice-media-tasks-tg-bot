@@ -2,11 +2,16 @@ import createDebug from 'debug';
 import { client } from '../core';
 
 import type { Context } from 'telegraf';
+import { applyRestrictions } from '../utils';
 
 const debug = createDebug('bot:handle_reset_chat');
 
 export const handleResetChat = async (ctx: Context) => {
   debug('Triggered "handleResetChat" handler');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = (ctx.callbackQuery as any).message.message_thread_id || 0;

@@ -3,6 +3,7 @@ import { client } from '../core';
 import { TITLE_LENGTH_LIMIT } from '../config';
 import { ChangeStatusEvents } from '../enums';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   changeStatusEvent,
   formatChangeStatusEventMessage,
@@ -16,6 +17,10 @@ const updateTaskTitleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
 
 export const setTaskTitle = async (ctx: Context) => {
   debug('Triggered "set_title" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(updateTaskTitleRegex);

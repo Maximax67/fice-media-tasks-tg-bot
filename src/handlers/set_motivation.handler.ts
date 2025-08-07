@@ -3,6 +3,7 @@ import createDebug from 'debug';
 import { client } from '../core';
 import { MotivationTypes } from '../enums';
 import { MOTIVATION_TYPES_NAMES } from '../constants';
+import { applyRestrictions } from '../utils';
 
 import type { QueryResult } from 'pg';
 import type { Context } from 'telegraf';
@@ -11,6 +12,10 @@ const debug = createDebug('bot:handle_set_motivation');
 
 export const handleSetMotivation = async (ctx: Context) => {
   debug('Triggered "handle_set_motivation" handler');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const callbackData: string = (ctx.callbackQuery as any).data;
   if (!callbackData.startsWith('set_motivation:')) {

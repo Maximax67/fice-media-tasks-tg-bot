@@ -2,6 +2,7 @@ import createDebug from 'debug';
 import { client } from '../core';
 import { ChangeStatusEvents } from '../enums';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   changeStatusEvent,
   formatChangeStatusEventMessage,
@@ -16,6 +17,10 @@ const deleteDeadlineRegex = /^(\/\S+)\s+(\d+)$/;
 
 export const deleteTaskDeadline = async (ctx: Context) => {
   debug('Triggered "delete_deadline" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(deleteDeadlineRegex);

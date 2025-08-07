@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { autoupdateTaskList } from '../utils';
+import { applyRestrictions, autoupdateTaskList } from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -8,6 +8,10 @@ const debug = createDebug('bot:handle_delete_task');
 
 export const handleDeleteTask = async (ctx: Context) => {
   debug('Triggered "handleDeleteTask" handler');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const callbackData: string = (ctx.callbackQuery as any).data;
   if (!callbackData.startsWith('delete_task:')) {

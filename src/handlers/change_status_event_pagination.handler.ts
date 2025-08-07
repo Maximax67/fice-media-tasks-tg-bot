@@ -1,6 +1,10 @@
 import createDebug from 'debug';
 import { STATUS_EVENT_KEYBOARD_ITEMS } from '../constants';
-import { getStatusesWithEvents, makeChangeStatusEventKeyboard } from '../utils';
+import {
+  applyRestrictions,
+  getStatusesWithEvents,
+  makeChangeStatusEventKeyboard,
+} from '../utils';
 
 import type { Context } from 'telegraf';
 import type { StatusesWithEvents } from '../interfaces';
@@ -9,6 +13,10 @@ const debug = createDebug('bot:handle_change_status_event_pagination');
 
 export const handleChangeStatusEventPagination = async (ctx: Context) => {
   debug('Triggered "handle_change_status_event_pagination" handler');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const callbackData: string = (ctx.callbackQuery as any).data;
   if (!callbackData.startsWith('csep:')) {

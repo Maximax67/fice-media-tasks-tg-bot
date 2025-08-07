@@ -1,5 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
+import { applyRestrictions } from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -7,6 +8,10 @@ const debug = createDebug('bot:reset_chat');
 
 export const resetChat = async (ctx: Context) => {
   debug('Triggered "reset_chat" command');
+
+  if (!(await applyRestrictions(ctx, true))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || 0;

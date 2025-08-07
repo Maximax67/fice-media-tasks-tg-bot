@@ -3,6 +3,7 @@ import createDebug from 'debug';
 import { client } from '../core';
 import { MotivationTypes } from '../enums';
 import { MOTIVATION_TYPES_NAMES } from '../constants';
+import { applyRestrictions } from '../utils';
 
 import type { QueryResult } from 'pg';
 import type { Context } from 'telegraf';
@@ -12,6 +13,10 @@ const debug = createDebug('bot:set_motivation');
 
 export const setMotivation = async (ctx: Context) => {
   debug('Triggered "set_motivation" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || 0;

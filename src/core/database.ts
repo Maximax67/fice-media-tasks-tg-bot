@@ -82,6 +82,11 @@ const createTableQuery = `
     chat_id BIGINT PRIMARY KEY,
     timestamp TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS restricted_chats (
+    chat_id BIGINT PRIMARY KEY,
+    timestamp TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
 `;
 
 const client = new Client({

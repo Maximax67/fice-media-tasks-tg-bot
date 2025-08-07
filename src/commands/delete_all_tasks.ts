@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { client } from '../core';
-import { autoupdateTaskList } from '../utils';
+import { applyRestrictions, autoupdateTaskList } from '../utils';
 
 import type { Context } from 'telegraf';
 
@@ -8,6 +8,10 @@ const debug = createDebug('bot:delete_all_tasks');
 
 export const deleteAllTasks = async (ctx: Context) => {
   debug('Triggered "delete_all_tasks" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || 0;

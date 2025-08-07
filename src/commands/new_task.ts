@@ -4,6 +4,7 @@ import type { Context } from 'telegraf';
 
 import { client } from '../core';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   formatResponsible,
   taskTitleReplacer,
@@ -38,6 +39,10 @@ const tempReplacerChar = '\uFFFF';
 
 export const newTask = async (ctx: Context) => {
   debug('Triggereыd "new_task" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || 0;

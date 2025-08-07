@@ -3,6 +3,7 @@ import { client } from '../core';
 import { ChangeStatusEvents } from '../enums';
 import { RESPONSIBLE_LENGTH_LIMIT } from '../config';
 import {
+  applyRestrictions,
   autoupdateTaskList,
   changeStatusEvent,
   formatChangeStatusEventMessage,
@@ -17,6 +18,10 @@ const setTaskResponsibleRegex = /^(\/\S+)\s+(\d+)\s+(.+)$/;
 
 export const setTaskResponsible = async (ctx: Context) => {
   debug('Triggered "set_responsible" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(setTaskResponsibleRegex);

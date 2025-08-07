@@ -1,5 +1,6 @@
 import createDebug from 'debug';
 import {
+  applyRestrictions,
   escapeHtml,
   getStatusesWithEvents,
   makeChangeStatusEventKeyboard,
@@ -13,6 +14,10 @@ const setChangeStatusEventRegex = /^(\/\S+)\s+(\d+)$/;
 
 export const setChangeStatusEvent = async (ctx: Context) => {
   debug('Triggered "set_change_status_event" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const message: string = (ctx.message as any).text.trim();
   const match = message.match(setChangeStatusEventRegex);

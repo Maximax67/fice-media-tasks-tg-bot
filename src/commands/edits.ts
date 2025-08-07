@@ -1,5 +1,6 @@
 import createDebug from 'debug';
 import {
+  applyRestrictions,
   formatTask,
   getMotivationImage,
   getMotivationType,
@@ -13,6 +14,10 @@ const debug = createDebug('bot:edits');
 
 export const edits = async (ctx: Context) => {
   debug('Triggered "edits" command');
+
+  if (!(await applyRestrictions(ctx))) {
+    return;
+  }
 
   const chatId = ctx.chat!.id;
   const thread = ctx.message!.message_thread_id || 0;
