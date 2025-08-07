@@ -49,7 +49,7 @@ export default async function handle(req: VercelRequest, res: VercelResponse) {
 
   const botToken = process.env.BOT_TOKEN!;
   const webhookUrl = `${VERCEL_URL}/api`;
-  const secretToken = process.env.TELEGRAM_SECRET_TOKEN;
+  const secretToken = process.env.WEBHOOK_SECRET;
 
   try {
     await initDatabase();
