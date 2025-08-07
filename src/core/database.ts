@@ -94,9 +94,12 @@ const client = new Client({
       : false,
 });
 
-client.connect(function (err) {
+client.connect(function (err): void {
   if (err) throw err;
-  client.query(createTableQuery, []);
 });
+
+export const initDatabase = async (): Promise<void> => {
+  await client.query(createTableQuery, []);
+};
 
 export { client };
