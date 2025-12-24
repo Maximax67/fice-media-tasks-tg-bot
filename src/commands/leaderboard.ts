@@ -32,12 +32,8 @@ export const getLeaderboard = async (ctx: Context) => {
     WHERE
       c.chat_id = $1
       AND (
-        CASE
-          WHEN EXISTS (
-            SELECT 1 FROM shared_threads_chats WHERE chat_id = $1
-          ) THEN TRUE
-          ELSE thread = $2
-        END
+        EXISTS (SELECT 1 FROM shared_threads_chats WHERE chat_id = $1)
+        OR thread = $2
       )
       AND t.responsible IS NOT NULL
     GROUP BY t.responsible
