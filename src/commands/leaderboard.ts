@@ -23,14 +23,14 @@ export const getLeaderboard = async (ctx: Context) => {
   const thread = ctx.message!.message_thread_id || 0;
 
   const query = `
-    SELECT 
-      t.responsible, 
+    SELECT
+      t.responsible,
       COUNT(*) AS task_count,
       MAX(t.completed_at) AS last_completed
     FROM tasks t
     JOIN chats c ON t.chat_id = c.id
     WHERE
-      c.chat_id = $1 
+      c.chat_id = $1
       AND (
         CASE
           WHEN EXISTS (
@@ -41,6 +41,10 @@ export const getLeaderboard = async (ctx: Context) => {
       )
       AND t.responsible IS NOT NULL
     GROUP BY t.responsible
+    HAVING
+      COUNT(*) != COUNT(t.completed_at)
+      OR MAX(t.completed_at) IS NULL
+      OR MAX(t.completed_at) >= NOW() - INTERVAL '3 months'
     ORDER BY task_count DESC, last_completed DESC NULLS LAST;
   `;
   const result = await client.query(query, [chatId, thread]);

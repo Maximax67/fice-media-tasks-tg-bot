@@ -43,7 +43,11 @@ export const suggestResponsible = async (ctx: Context) => {
       )
       AND t.responsible IS NOT NULL
     GROUP BY t.responsible
-    ORDER BY 
+    HAVING
+      COUNT(*) != COUNT(t.completed_at)
+      OR MAX(t.completed_at) IS NULL
+      OR MAX(t.completed_at) >= NOW() - INTERVAL '3 months'
+    ORDER BY
       has_pending,
       last_completed NULLS FIRST,
       task_count,
@@ -69,9 +73,9 @@ export const suggestResponsible = async (ctx: Context) => {
     if (row.has_pending) {
       marker = '🔴';
     } else if (
-      row.last_completed &&
-      new Date().getTime() - new Date(row.last_completed).getTime() <
-        7 * 24 * 60 * 60 * 1000
+      lastCompleted &&
+      new Date().getTime() - new Date(lastCompleted).getTime() <
+      7 * 24 * 60 * 60 * 1000
     ) {
       marker = '🟡';
     }
