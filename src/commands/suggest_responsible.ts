@@ -40,9 +40,8 @@ export const suggestResponsible = async (ctx: Context) => {
       AND t.responsible IS NOT NULL
     GROUP BY t.responsible
     HAVING
-      COUNT(*) != COUNT(t.completed_at)
-      OR MAX(t.completed_at) IS NULL
-      OR MAX(t.completed_at) >= NOW() - INTERVAL '3 months'
+      (MAX(t.completed_at) >= NOW() - INTERVAL '3 months' OR MAX(t.completed_at) IS NULL)
+      AND COUNT(*) != COUNT(t.completed_at)
     ORDER BY
       has_pending,
       last_completed NULLS FIRST,

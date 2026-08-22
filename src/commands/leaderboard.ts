@@ -37,10 +37,6 @@ export const getLeaderboard = async (ctx: Context) => {
       )
       AND t.responsible IS NOT NULL
     GROUP BY t.responsible
-    HAVING
-      COUNT(*) != COUNT(t.completed_at)
-      OR MAX(t.completed_at) IS NULL
-      OR MAX(t.completed_at) >= NOW() - INTERVAL '3 months'
     ORDER BY task_count DESC, last_completed DESC NULLS LAST;
   `;
   const result = await client.query(query, [chatId, thread]);
