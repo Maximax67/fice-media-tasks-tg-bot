@@ -70,7 +70,7 @@ export const suggestResponsible = async (ctx: Context) => {
     } else if (
       lastCompleted &&
       new Date().getTime() - new Date(lastCompleted).getTime() <
-      7 * 24 * 60 * 60 * 1000
+        7 * 24 * 60 * 60 * 1000
     ) {
       marker = '🟡';
     }

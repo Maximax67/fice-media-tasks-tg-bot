@@ -99,7 +99,7 @@ const client = new Client({
       : false,
 });
 
-client.connect(function (err): void {
+client.connect((err: Error | null): void => {
   if (err) throw err;
 });
 

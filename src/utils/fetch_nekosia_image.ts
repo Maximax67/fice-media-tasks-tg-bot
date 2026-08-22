@@ -3,7 +3,7 @@ import { retryOnException } from './retry_on_exception';
 import { fetchImage } from './fetch_image';
 
 export const fetchNekosiaImage = async (
-  tags: AllTagsList[] = ['cute'],
+  tags: [AllTagsList, ...AllTagsList[]] = ['cute'],
   retries: number = 3,
 ): Promise<Buffer> => {
   return retryOnException(async () => {
@@ -13,7 +13,7 @@ export const fetchNekosiaImage = async (
       session: 'ip',
     });
 
-    if (!response.success) {
+    if (!response.success || !response.image) {
       throw new Error(`NekosiaAPI response was not successfull: ${response}`);
     }
 
